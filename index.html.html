@@ -1,0 +1,2742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡DESCUBRE LA ANATOMÍA DE UN ROBOT! - UNL | BETEL</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Google Fonts: Inter & Orbitron for futuristic readability -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-cyan: #00e5ff;
+      --neon-yellow: #fde047;
+      --bg-dark: #070d17;
+      --panel-bg: rgba(11, 20, 34, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .font-display {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Futuristic PCB Background Pattern */
+    .pcb-background {
+      background-color: #070d17;
+      background-image: 
+        radial-gradient(circle at 50% 45%, rgba(0, 229, 255, 0.11) 0%, rgba(7, 13, 23, 0.96) 70%),
+        linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    /* Opaque Futuristic Panel */
+    .cyber-panel {
+      background: var(--panel-bg);
+      border: 1.5px solid rgba(0, 229, 255, 0.55);
+      box-shadow: 0 0 22px rgba(0, 229, 255, 0.12), inset 0 0 18px rgba(0, 229, 255, 0.05);
+      border-radius: 1rem;
+    }
+
+    .cyber-panel-yellow {
+      background: var(--panel-bg);
+      border: 1.5px solid rgba(253, 224, 71, 0.7);
+      box-shadow: 0 0 22px rgba(253, 224, 71, 0.14);
+      border-radius: 1rem;
+    }
+
+    /* Neon Title Styling matching user's design */
+    .neon-text-cyan {
+      color: #e0faff;
+      text-shadow:
+        0 0 6px #00e5ff,
+        0 0 14px #00e5ff,
+        0 0 28px rgba(0, 229, 255, 0.75);
+      -webkit-text-stroke: 1px #00e5ff;
+    }
+
+    .neon-text-yellow {
+      color: #fef9c3;
+      text-shadow:
+        0 0 6px #fde047,
+        0 0 14px #facc15,
+        0 0 28px rgba(253, 224, 71, 0.75);
+      -webkit-text-stroke: 1px #fde047;
+    }
+
+    /* Futuristic Interactive Buttons */
+    .btn-cyber {
+      background: linear-gradient(180deg, rgba(14, 34, 56, 0.96) 0%, rgba(8, 20, 36, 0.98) 100%);
+      border: 1.5px solid #00e5ff;
+      color: #e0faff;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-cyber:hover {
+      background: linear-gradient(180deg, rgba(0, 229, 255, 0.25) 0%, rgba(14, 34, 56, 0.98) 100%);
+      box-shadow: 0 0 22px rgba(0, 229, 255, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .btn-cyber:active {
+      transform: translateY(0);
+    }
+
+    .btn-cyber-yellow {
+      background: linear-gradient(180deg, rgba(58, 48, 12, 0.96) 0%, rgba(30, 25, 8, 0.98) 100%);
+      border: 1.5px solid #fde047;
+      color: #fef9c3;
+      box-shadow: 0 4px 15px rgba(253, 224, 71, 0.22);
+      transition: all 0.2s ease;
+    }
+
+    .btn-cyber-yellow:hover {
+      background: linear-gradient(180deg, rgba(253, 224, 71, 0.28) 0%, rgba(42, 35, 10, 0.98) 100%);
+      box-shadow: 0 0 24px rgba(253, 224, 71, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .tab-active {
+      background: rgba(0, 229, 255, 0.22) !important;
+      border-color: #fde047 !important;
+      color: #fde047 !important;
+      box-shadow: 0 0 16px rgba(253, 224, 71, 0.35);
+    }
+
+    /* Custom Scrollbar for inner lists if needed on smaller screens */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(7, 13, 23, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 229, 255, 0.4);
+      border-radius: 9999px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+
+    .sparkle-anim {
+      animation: pulseGlow 2.4s infinite ease-in-out;
+    }
+
+    canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="pcb-background flex flex-col min-h-screen">
+
+  <!-- TOP INSTITUTIONAL HEADER (Universidad Nacional de Loja & Escuela Particular Betel) -->
+  <header class="w-full px-4 sm:px-6 py-2.5 bg-[#060d18]/95 border-b border-cyan-500/40 flex flex-wrap items-center justify-between gap-3 z-30">
+    <div class="flex flex-wrap items-center gap-3 sm:gap-5">
+      <!-- 1. Universidad Nacional de Loja Emblem -->
+      <div class="flex items-center gap-2.5 pr-3 sm:pr-5 border-r border-cyan-500/40">
+        <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shadow-[0_0_12px_rgba(0,242,254,0.35)] shrink-0">
+          <svg class="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.5l5 3-5 3-5-3 5-3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 13l5 3 5-3M12 16v3.5" />
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="text-xs sm:text-sm font-extrabold tracking-wide text-cyan-300">Universidad Nacional de Loja</div>
+          <div class="text-[11px] font-medium text-slate-300">Institución de Educación Superior</div>
+        </div>
+      </div>
+
+      <!-- 2. Escuela Particular Betel Emblem -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center shadow-[0_0_12px_rgba(253,224,71,0.3)] shrink-0">
+          <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3.5v5.5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6.5L12 3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 11.5l2 2 4-4" />
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="text-xs sm:text-sm font-extrabold tracking-wide text-yellow-300">Escuela Particular Betel</div>
+          <div class="text-[11px] font-medium text-cyan-200/90">6.º Grado de Educación General Básica</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Right Controls -->
+    <div class="flex items-center gap-2">
+      <button id="btn-sound" onclick="toggleSound()" title="Activar/Silenciar efectos de sonido" class="p-2 rounded-lg bg-slate-900 border border-cyan-500/50 text-cyan-300 hover:border-yellow-300 hover:text-yellow-300 transition">
+        <svg id="icon-sound-on" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" />
+        </svg>
+        <svg id="icon-sound-off" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" />
+        </svg>
+      </button>
+      <button id="btn-info-top" onclick="navigateTo('pedagogia')" title="Fundamentación Pedagógica del Recurso" class="w-9 h-9 rounded-lg bg-cyan-950 border-2 border-cyan-400 text-cyan-300 font-display font-extrabold text-base hover:border-yellow-300 hover:text-yellow-300 hover:shadow-[0_0_15px_rgba(253,224,71,0.5)] transition flex items-center justify-center">
+        i
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main class="flex-1 flex flex-col relative w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-4">
+
+    <!-- =========================================================
+         1. PANTALLA DE PORTADA
+    ========================================================= -->
+    <section id="screen-portada" class="flex-1 flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
+      <!-- Left Column: Institutions, Course, Neon Title, Start Button -->
+      <div class="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 z-10">
+        <!-- Institutional & Grade Badges -->
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+          <span class="px-3.5 py-1.5 rounded-full bg-cyan-950/90 border border-cyan-400/70 text-cyan-300 text-xs font-bold">
+            Universidad Nacional de Loja
+          </span>
+          <span class="px-3.5 py-1.5 rounded-full bg-yellow-950/90 border border-yellow-300/70 text-yellow-300 text-xs font-bold">
+            Escuela Particular Betel
+          </span>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#091526] border border-cyan-500/50 text-slate-200 text-xs sm:text-sm font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-yellow-300 animate-ping"></span>
+          <span>Curso: 6.º Grado de Educación General Básica</span>
+        </div>
+
+        <!-- Neon Title matching user reference -->
+        <div class="relative py-2">
+          <div class="flex items-center justify-center lg:justify-start gap-2">
+            <!-- Four-point sparkle icon -->
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white sparkle-anim shrink-0 drop-shadow-[0_0_10px_#00e5ff]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z" />
+            </svg>
+            <h1 class="font-display font-black text-3xl sm:text-4xl xl:text-5xl tracking-wide neon-text-cyan leading-tight">
+              ¡DESCUBRE LA
+            </h1>
+          </div>
+          <h1 class="font-display font-black text-3xl sm:text-4xl xl:text-5xl tracking-wide neon-text-yellow leading-tight mt-1">
+            ANATOMÍA DE UN ROBOT!
+          </h1>
+        </div>
+
+        <p class="text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed">
+          Explora en <span class="text-cyan-300 font-semibold">3D interactivo</span> cómo funciona cada parte de un robot por dentro y por fuera, pon a prueba tus conocimientos y resuelve retos en el laboratorio robótico.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+          <button onclick="navigateTo('menu')" class="btn-cyber-yellow px-8 py-4 rounded-xl font-display font-bold text-lg sm:text-xl tracking-wider flex items-center gap-3 cursor-pointer">
+            <span>Inicio</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+
+          <button onclick="navigateTo('pedagogia')" class="btn-cyber px-5 py-4 rounded-xl font-semibold text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+            <span class="w-6 h-6 rounded-full border border-cyan-400 flex items-center justify-center font-display font-bold text-xs text-yellow-300">i</span>
+            <span>Fundamentación Pedagógica</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: 3D Rotating Educational Robot Preview -->
+      <div class="w-full lg:w-1/2 h-[320px] sm:h-[400px] lg:h-[460px] cyber-panel relative overflow-hidden">
+        <div id="canvas-portada-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2 rounded-lg bg-[#08111e]/90 border border-cyan-500/40 text-xs text-cyan-200 pointer-events-none">
+          <span>Modelo 3D Interactivo • Arrastra para girar el robot</span>
+          <span class="text-yellow-300 font-semibold">Vista 360°</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         1B. FUNDAMENTACIÓN PEDAGÓGICA DEL RECURSO (Botón "i")
+    ========================================================= -->
+    <section id="screen-pedagogia" class="hidden flex-1 flex flex-col justify-between gap-4 py-1">
+      <!-- Title Banner -->
+      <div class="cyber-panel px-6 py-3.5 text-center border-cyan-400">
+        <h2 class="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl tracking-wide text-slate-100">
+          Anatomía de un robot
+        </h2>
+        <p class="font-display font-bold text-sm sm:text-base lg:text-lg text-cyan-400 tracking-wider mt-0.5">
+          FUNDAMENTACIÓN PEDAGÓGICA DEL RECURSO
+        </p>
+      </div>
+
+      <!-- Full-width Educational Bases (No empty center, zero clipped text) -->
+      <div class="cyber-panel p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-500/30 pb-2">
+          <h3 class="font-display font-bold text-lg sm:text-xl text-yellow-300 tracking-wide">
+            Bases Educativas
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+          <!-- Criterio -->
+          <div class="flex items-start gap-4 bg-[#081220] p-4 rounded-xl border border-cyan-500/35">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-base sm:text-lg text-cyan-300">Criterio:</h4>
+              <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-0.5">
+                <strong class="text-yellow-300">CE.CN.3.9.</strong> Analiza las características, importancia, aplicaciones y fundamentos de la energía eléctrica y los sistemas tecnológicos, valorando su función en el diseño de dispositivos automatizados presentes en el entorno cotidiano y relacionándolos con las necesidades del ser humano y su entorno.
+              </p>
+            </div>
+          </div>
+
+          <!-- Destreza -->
+          <div class="flex items-start gap-4 bg-[#081220] p-4 rounded-xl border border-cyan-500/35">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-base sm:text-lg text-cyan-300">Destreza:</h4>
+              <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-0.5">
+                <strong class="text-yellow-300">CN.3.3.11.</strong> Identificar y clasificar las partes fundamentales de un robot —estructura mecánica o chasis, sistema de control, sensores, actuadores y fuente de energía—, explicando con claridad la función específica que cumple cada componente dentro de un sistema automatizado básico mediante la observación y el análisis de modelos tecnológicos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Objetivo -->
+          <div class="flex items-start gap-4 bg-[#081220] p-4 rounded-xl border border-cyan-500/35">
+            <div class="w-11 h-11 rounded-xl bg-cyan-950 border border-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="5" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-base sm:text-lg text-cyan-300">Objetivo:</h4>
+              <p class="text-slate-200 text-sm sm:text-base leading-relaxed mt-0.5">
+                <strong class="text-yellow-300">O.CN.3.8.</strong> Reconocer la arquitectura básica de un robot mediante la exploración interactiva de sus componentes físicos y electrónicos, diferenciando cómo percibe los estímulos del entorno, procesa la información y ejecuta acciones o movimientos para comprender el funcionamiento de la robótica en la vida diaria.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Author Card & Back Button Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-cyan-500/30">
+          <button onclick="navigateTo('portada')" class="btn-cyber px-5 py-2.5 rounded-xl font-semibold text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Volver a la Portada</span>
+          </button>
+
+          <!-- Author Info Box -->
+          <div class="flex flex-wrap items-center gap-4 sm:gap-6 px-5 py-2.5 rounded-xl bg-[#091526] border border-yellow-300/60">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-yellow-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span class="text-sm sm:text-base text-slate-100"><strong class="text-cyan-300">Autor:</strong> Eddy Blacio</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <svg class="w-5 h-5 text-yellow-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span class="text-sm sm:text-base text-slate-100"><strong class="text-cyan-300">Contacto:</strong> eddy.blacio@unl.edu.ec</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         2. MENÚ PRINCIPAL
+    ========================================================= -->
+    <section id="screen-menu" class="hidden flex-1 flex flex-col items-center justify-center py-4">
+      <div class="cyber-panel w-full max-w-3xl p-6 sm:p-10 text-center space-y-6 relative">
+        <div>
+          <span class="px-3.5 py-1 rounded-full bg-cyan-950 border border-cyan-400/60 text-cyan-300 text-xs font-bold tracking-widest uppercase">
+            Menú Principal
+        <!-- 4 Main Interactive Buttons in Menu -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Video Educativo -->
+          <button onclick="openVideoLesson()" class="btn-cyber p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer group">
+            <div class="w-15 h-15 p-3.5 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center group-hover:scale-110 transition">
+              <svg class="w-8 h-8 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="2" y="4" width="20" height="16" rx="3" />
+                <polygon points="10 8.5 16 12 10 15.5 10 8.5" fill="currentColor" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-display font-bold text-lg text-white group-hover:text-yellow-300 transition">Video</div>
+              <div class="text-xs text-cyan-200/80 mt-1">Video educativo del tema</div>
+            </div>
+          </button>
+
+          <!-- Contenido -->
+          <button onclick="navigateTo('contenido')" class="btn-cyber p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer group">
+            <div class="w-15 h-15 p-3.5 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center group-hover:scale-110 transition">
+              <svg class="w-8 h-8 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-display font-bold text-lg text-white group-hover:text-yellow-300 transition">Contenido</div>
+              <div class="text-xs text-cyan-200/80 mt-1">Explora las 5 partes en 3D</div>
+            </div>
+          </button>
+
+          <!-- Evaluación -->
+          <button onclick="startEvaluation()" class="btn-cyber-yellow p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer group">
+            <div class="w-15 h-15 p-3.5 rounded-2xl bg-yellow-950/80 border border-yellow-300 flex items-center justify-center group-hover:scale-110 transition">
+              <svg class="w-8 h-8 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-display font-bold text-lg text-yellow-300">Evaluación</div>
+              <div class="text-xs text-yellow-100/80 mt-1">5 preguntas interactivas</div>
+            </div>
+          </button>
+
+          <!-- Actividad -->
+          <button onclick="startActivity()" class="btn-cyber p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer group">
+            <div class="w-15 h-15 p-3.5 rounded-2xl bg-cyan-950 border border-cyan-400 flex items-center justify-center group-hover:scale-110 transition">
+              <svg class="w-8 h-8 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-display font-bold text-lg text-white group-hover:text-yellow-300 transition">Actividad</div>
+              <div class="text-xs text-cyan-200/80 mt-1">Laboratorio 3D de diagnóstico</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="navigateTo('portada')" class="text-xs sm:text-sm text-slate-400 hover:text-cyan-300 transition inline-flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Regresar a la Portada</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         3. SECCIÓN "CONTENIDO" (EXPLORACIÓN 3D INTERACTIVA)
+    ========================================================= -->
+    <section id="screen-contenido" class="hidden flex-1 flex flex-col gap-3">
+      <!-- Top Selector Bar for the 5 Robot Parts -->
+      <div class="cyber-panel px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2" id="content-tabs">
+          <button onclick="selectPart(0)" id="tab-part-0" class="btn-cyber tab-active px-3 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-pointer">
+            1. El Controlador
+          </button>
+          <button onclick="selectPart(1)" id="tab-part-1" class="btn-cyber px-3 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-pointer">
+            2. Los Sensores
+          </button>
+          <button onclick="selectPart(2)" id="tab-part-2" class="btn-cyber px-3 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-pointer">
+            3. Los Actuadores
+          </button>
+          <button onclick="selectPart(3)" id="tab-part-3" class="btn-cyber px-3 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-pointer">
+            4. Fuente de Energía
+          </button>
+          <button onclick="selectPart(4)" id="tab-part-4" class="btn-cyber px-3 py-2 rounded-lg text-xs sm:text-sm font-bold cursor-pointer">
+            5. Estructura / Chasis
+          </button>
+        </div>
+
+        <button onclick="navigateTo('menu')" class="btn-cyber px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span>Menú</span>
+        </button>
+      </div>
+
+      <!-- Main Split Content Area -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[460px]">
+        <!-- Left Opaque Explanation Panel (5 cols on desktop) -->
+        <div class="lg:col-span-5 cyber-panel p-5 flex flex-col justify-between gap-4">
+          <div>
+            <div class="border-b border-cyan-500/35 pb-2.5">
+              <div class="text-xs font-bold uppercase tracking-widest text-yellow-300">Anatomía de un robot</div>
+              <h3 id="part-title" class="font-display font-extrabold text-lg sm:text-xl text-cyan-300 mt-0.5">
+                1. EL CONTROLADOR (CEREBRO ELECTRÓNICO)
+              </h3>
+            </div>
+
+            <p id="part-description" class="text-slate-100 text-sm sm:text-base leading-relaxed mt-3">
+              El controlador es el componente central que gestiona todas las operaciones del robot. Procesa datos de sensores y ejecuta comandos para actuadores, coordinando el comportamiento del robot.
+            </p>
+
+            <!-- Feature Icon List -->
+            <ul id="part-features" class="mt-4 space-y-2.5">
+              <!-- Populated dynamically via JS -->
+            </ul>
+          </div>
+
+          <!-- Next / Prev Part quick buttons -->
+          <div class="flex items-center justify-between pt-2 border-t border-cyan-500/30">
+            <button onclick="prevPart()" class="btn-cyber px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">
+              ← Anterior
+            </button>
+            <span id="part-counter" class="text-xs font-bold text-cyan-300">Pieza 1 de 5</span>
+            <button onclick="nextPart()" class="btn-cyber px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+
+        <!-- Right/Center Interactive 3D Viewport (7 cols on desktop) -->
+        <div class="lg:col-span-7 cyber-panel relative flex flex-col overflow-hidden min-h-[360px]">
+          <!-- Top 3D Viewport Toolbar -->
+          <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <button id="btn-view-isolated" onclick="setContent3DMode('isolated')" class="btn-cyber tab-active px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Pieza Aislada 3D
+              </button>
+              <button id="btn-view-robot" onclick="setContent3DMode('robot')" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Ubicación en Robot
+              </button>
+            </div>
+
+            <button id="btn-demo-action" onclick="triggerPartDemo()" class="btn-cyber-yellow px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 pointer-events-auto cursor-pointer">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              <span id="btn-demo-label">Activar Demo</span>
+            </button>
+          </div>
+
+          <!-- Three.js Canvas Container -->
+          <div id="canvas-contenido-container" class="w-full h-full flex-1 cursor-grab active:cursor-grabbing"></div>
+
+          <!-- Bottom 3D Controls Hint & Status -->
+          <div class="absolute bottom-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-lg bg-[#08111e]/90 border border-cyan-500/40 text-xs pointer-events-none">
+            <span id="demo-status-text" class="text-cyan-200 font-medium">Arrastra para rotar • Rueda/Pellizco para acercar</span>
+            <div class="flex items-center gap-1.5 pointer-events-auto">
+              <button onclick="zoomContentCamera(-1.2)" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400 text-cyan-200 font-bold hover:bg-cyan-800 cursor-pointer" title="Acercar">+</button>
+              <button onclick="zoomContentCamera(1.2)" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400 text-cyan-200 font-bold hover:bg-cyan-800 cursor-pointer" title="Alejar">−</button>
+              <button onclick="resetContentCamera()" class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-400 text-yellow-300 font-semibold hover:bg-cyan-800 cursor-pointer">Centrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         4. SECCIÓN "EVALUACIÓN" (FLUJO EXACTO P1 -> P5)
+    ========================================================= -->
+    <section id="screen-evaluacion" class="hidden flex-1 flex flex-col items-center justify-center py-2">
+      <!-- QUESTION CARD (P1 to P5) -->
+      <div id="eval-question-card" class="cyber-panel w-full max-w-3xl p-6 sm:p-8 flex flex-col gap-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-500/35 pb-3">
+          <div class="flex items-center gap-3">
+            <span id="eval-q-badge" class="px-3.5 py-1 rounded-lg bg-cyan-950 border border-cyan-400 font-display font-extrabold text-sm sm:text-base text-yellow-300">
+              P1
+            </span>
+            <span class="text-xs sm:text-sm text-cyan-300 font-semibold uppercase tracking-wider">
+              Evaluación de Conocimientos
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5" id="eval-progress-dots">
+            <!-- 5 dots rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Situational Robotics Scenario / Telemetry Clue -->
+        <div id="eval-scenario-bar" class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-xl bg-cyan-950/75 border border-cyan-400/50 text-xs sm:text-sm">
+          <span class="font-display font-bold text-yellow-300 tracking-wide" id="eval-case-tag">CASO ROBÓTICO #1</span>
+          <span class="text-cyan-200 font-medium" id="eval-telemetry-clue">Telemetría: Señal en espera</span>
+        </div>
+
+        <!-- Enunciado -->
+        <div class="bg-[#081220] border border-cyan-500/35 rounded-2xl p-5 sm:p-6 text-center">
+          <p id="eval-enunciado" class="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-relaxed">
+            Enunciado de la pregunta...
+          </p>
+        </div>
+
+        <!-- Triangular / Balanced 3 Options Layout (OP1 top-left, OP3 top-right, OP2 bottom-center) -->
+        <div class="flex flex-col gap-4 pt-1">
+          <!-- Top Row: OP1 & OP3 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button onclick="submitAnswer(0)" class="btn-cyber p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left cursor-pointer group">
+              <span class="w-11 h-11 rounded-full bg-cyan-950 border-2 border-cyan-400 group-hover:border-yellow-300 flex items-center justify-center font-display font-extrabold text-sm text-cyan-300 group-hover:text-yellow-300 shrink-0">
+                OP1
+              </span>
+              <span id="eval-op1-text" class="text-sm sm:text-base font-semibold text-slate-100 leading-snug">
+                Opción 1
+              </span>
+            </button>
+
+            <button onclick="submitAnswer(2)" class="btn-cyber p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left cursor-pointer group">
+              <span class="w-11 h-11 rounded-full bg-cyan-950 border-2 border-cyan-400 group-hover:border-yellow-300 flex items-center justify-center font-display font-extrabold text-sm text-cyan-300 group-hover:text-yellow-300 shrink-0">
+                OP3
+              </span>
+              <span id="eval-op3-text" class="text-sm sm:text-base font-semibold text-slate-100 leading-snug">
+                Opción 3
+              </span>
+            </button>
+          </div>
+
+          <!-- Bottom Center Row: OP2 -->
+          <div class="flex justify-center">
+            <button onclick="submitAnswer(1)" class="btn-cyber w-full md:w-2/3 p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left cursor-pointer group">
+              <span class="w-11 h-11 rounded-full bg-cyan-950 border-2 border-cyan-400 group-hover:border-yellow-300 flex items-center justify-center font-display font-extrabold text-sm text-cyan-300 group-hover:text-yellow-300 shrink-0">
+                OP2
+              </span>
+              <span id="eval-op2-text" class="text-sm sm:text-base font-semibold text-slate-100 leading-snug">
+                Opción 2
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-start pt-1">
+          <button onclick="navigateTo('menu')" class="text-xs sm:text-sm text-slate-400 hover:text-cyan-300 transition cursor-pointer">
+            ← Salir al Menú Principal
+          </button>
+        </div>
+      </div>
+
+      <!-- FEEDBACK CARD ("R Positiva" / "R Negativa") -->
+      <div id="eval-feedback-card" class="hidden cyber-panel w-full max-w-2xl p-6 sm:p-8 text-center flex flex-col items-center gap-5">
+        <div id="feedback-header-badge" class="px-5 py-1.5 rounded-full font-display font-extrabold text-sm tracking-widest uppercase">
+          R Positiva
+        </div>
+
+        <!-- Expressive Face SVG (Happy or Sad) -->
+        <div id="feedback-face-container" class="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+          <!-- Injected dynamically -->
+        </div>
+
+        <h3 id="feedback-title" class="font-display font-black text-2xl sm:text-3xl">
+          ¡Excelente!
+        </h3>
+
+        <!-- "Por qué..." Box -->
+        <div class="w-full bg-[#081220] border border-cyan-500/40 rounded-2xl p-5 text-left">
+          <div class="text-xs font-bold uppercase tracking-wider text-yellow-300 mb-1">Por qué...</div>
+          <p id="feedback-explanation" class="text-slate-100 text-sm sm:text-base leading-relaxed">
+            Explicación pedagógica de la respuesta.
+          </p>
+        </div>
+
+        <button onclick="nextEvaluationStep()" class="btn-cyber-yellow px-8 py-3.5 rounded-xl font-display font-bold text-base sm:text-lg tracking-wider cursor-pointer">
+          Siguiente →
+        </button>
+      </div>
+
+      <!-- FINAL SUMMARY CARD (After P5 feedback -> returns directly to Menu with score) -->
+      <div id="eval-summary-card" class="hidden cyber-panel-yellow w-full max-w-xl p-6 sm:p-8 text-center flex flex-col items-center gap-5">
+        <div class="w-20 h-20 rounded-2xl bg-yellow-950/90 border-2 border-yellow-300 flex items-center justify-center">
+          <svg class="w-11 h-11 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+        </div>
+        <h3 class="font-display font-black text-2xl sm:text-3xl text-yellow-300">
+          ¡Evaluación Completada!
+        </h3>
+        <p class="text-slate-200 text-base sm:text-lg">
+          Tu puntuación final es: <span id="eval-final-score" class="font-display font-black text-2xl text-cyan-300">5 / 5</span>
+        </p>
+        <p id="eval-final-message" class="text-sm sm:text-base text-slate-300 leading-relaxed">
+          ¡Felicitaciones! Dominas la anatomía básica de un robot.
+        </p>
+        <button onclick="navigateTo('menu')" class="btn-cyber px-8 py-3.5 rounded-xl font-display font-bold text-base tracking-wider cursor-pointer">
+          Volver al Menú Principal
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         5. SECCIÓN "ACTIVIDAD" (LABORATORIO DE CALIBRACIÓN 3D Y VISTA EXPLOSIVA)
+    ========================================================= -->
+    <section id="screen-actividad" class="hidden flex-1 flex flex-col gap-3">
+      <!-- Top Bar with Live Robot Power Telemetry -->
+      <div class="cyber-panel px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 rounded-lg bg-yellow-950 border border-yellow-300 text-yellow-300 font-display font-bold text-xs sm:text-sm">
+            LABORATORIO 3D
+          </span>
+          <h2 class="font-display font-bold text-base sm:text-lg text-white">
+            Calibración Interactiva: ¡Enciende el Robot!
+          </h2>
+        </div>
+
+        <!-- Power Progress Bar (0% - 100%) -->
+        <div class="flex items-center gap-3 flex-1 max-w-md">
+          <span class="text-xs font-bold text-cyan-300 whitespace-nowrap">Energía del Robot:</span>
+          <div class="flex-1 h-3.5 rounded-full bg-slate-900 border border-cyan-500/50 overflow-hidden p-0.5">
+            <div id="act-power-bar" class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-yellow-300 transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <span id="act-power-pct" class="font-display font-extrabold text-xs sm:text-sm text-yellow-300 w-11 text-right">0%</span>
+        </div>
+
+        <button onclick="navigateTo('menu')" class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer">
+          Menú
+        </button>
+      </div>
+
+      <!-- Main Lab Grid -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[460px]">
+        <!-- Left Calibration Console (5 cols) -->
+        <div class="lg:col-span-5 cyber-panel p-5 flex flex-col justify-between gap-3">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-3 py-1 rounded-full bg-cyan-950 border border-cyan-400/60 text-cyan-300 text-xs font-bold">
+                1. SELECCIONA PIEZA EN EL ROBOT 3D
+              </span>
+              <span id="act-calibrated-count" class="text-xs font-bold text-yellow-300">0 / 5 Calibrados</span>
+            </div>
+
+            <!-- 5 Subsystem Status Cards (Click on 3D robot or here to inspect & calibrate) -->
+            <div class="grid grid-cols-1 gap-2" id="act-subsystems-list">
+              <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- Interactive Calibration Control Box for the Selected 3D Part -->
+            <div id="act-calibration-console" class="bg-[#081220] border border-yellow-300/60 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <h3 id="act-selected-title" class="font-display font-bold text-sm sm:text-base text-yellow-300">
+                  Haz clic en cualquier pieza del Robot 3D
+                </h3>
+                <span id="act-selected-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-600">
+                  En espera
+                </span>
+              </div>
+
+              <p id="act-selected-instruction" class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                Gira el robot con el ratón o dedo, activa la <strong class="text-cyan-300">Vista Explosiva / Rayos X</strong> para ver sus piezas internas y haz clic sobre cualquiera de los 5 sistemas para calibrarlo.
+              </p>
+
+              <!-- Interactive Slider / Action Calibration Control -->
+              <div id="act-interactive-control" class="hidden space-y-2 pt-1">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <span id="act-slider-label" class="text-cyan-300">Ajuste de parámetro:</span>
+                  <span id="act-slider-value" class="font-display font-bold text-yellow-300">50</span>
+                </div>
+                <input id="act-calibration-slider" type="range" min="0" max="100" value="20" oninput="onCalibrationSliderInput(this.value)" class="w-full accent-yellow-300 cursor-pointer" />
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                  <span id="act-slider-min">Mín</span>
+                  <span id="act-slider-target-hint" class="text-cyan-300 font-semibold">Zona óptima: 75 - 95</span>
+                  <span id="act-slider-max">Máx</span>
+                </div>
+                <button onclick="confirmSubsystemCalibration()" class="btn-cyber-yellow w-full py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm tracking-wider cursor-pointer mt-1">
+                  Aplicar Calibración y Activar Sistema
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Celebration Banner when 100% calibrated -->
+          <div id="act-complete-banner" class="hidden bg-cyan-950/95 border-2 border-yellow-300 rounded-xl p-3.5 text-center space-y-2">
+            <div class="font-display font-black text-sm sm:text-base text-yellow-300">
+              ¡ROBOT 100% CALIBRADO Y OPERATIVO!
+            </div>
+            <p class="text-xs text-cyan-100">
+              Todos los sistemas trabajan en armonía. Observa la demostración completa en el visor 3D.
+            </p>
+            <div class="flex items-center justify-center gap-2 pt-1">
+              <button onclick="resetActivityLab()" class="btn-cyber px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Reiniciar Laboratorio
+              </button>
+              <button onclick="navigateTo('menu')" class="btn-cyber-yellow px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+                Volver al Menú
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Interactive 3D Robot Viewport with Exploded / X-Ray Controls (7 cols) -->
+        <div class="lg:col-span-7 cyber-panel relative overflow-hidden min-h-[360px]">
+          <div class="absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <button id="btn-act-exploded" onclick="toggleActivityExplodedView()" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4 text-yellow-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+                <span id="btn-act-exploded-label">Vista Explosiva / Rayos X</span>
+              </button>
+            </div>
+
+            <span id="act-hover-label" class="px-3 py-1 rounded-lg bg-yellow-950/95 border border-yellow-300 text-xs text-yellow-300 font-bold hidden">
+              Pieza
+            </span>
+          </div>
+
+          <div id="canvas-actividad-container" class="w-full h-full cursor-pointer"></div>
+
+          <div class="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between px-3.5 py-2 rounded-lg bg-[#08111e]/90 border border-cyan-500/40 text-xs text-slate-300 pointer-events-none">
+            <span>Clic en ojos, cerebro, motores, batería o chasis</span>
+            <span class="text-cyan-300 font-semibold">Interacción 3D Directa</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         6. SECCIÓN "VIDEO" (REPRODUCTOR DE YOUTUBE Y RESPALDO LOCAL MP4)
+    ========================================================= -->
+    <section id="screen-video" class="hidden flex-1 flex flex-col gap-3">
+      <!-- Top Video Header -->
+      <div class="cyber-panel px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 rounded-lg bg-cyan-950 border border-cyan-400 text-cyan-300 font-display font-bold text-xs sm:text-sm">
+            VIDEO EDUCATIVO
+          </span>
+          <h2 class="font-display font-bold text-base sm:text-lg text-white">
+            Anatomía y Funcionamiento de un Robot
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-source-local" onclick="switchVideoSource('local')" class="btn-cyber tab-active px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+            Video del Curso (MP4)
+          </button>
+          <button id="btn-source-youtube" onclick="switchVideoSource('youtube')" class="btn-cyber px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">
+            YouTube
+          </button>
+          <button onclick="exitVideoLesson()" class="btn-cyber px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Menú</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Video Frame -->
+      <div class="cyber-panel flex-1 flex flex-col overflow-hidden min-h-[450px] p-4 gap-3 justify-between">
+        <!-- Responsive 16:9 Video Wrapper -->
+        <div class="relative w-full flex-1 min-h-[320px] rounded-xl overflow-hidden bg-black border border-cyan-500/40 shadow-[0_0_24px_rgba(0,229,255,0.18)]">
+          <!-- Local MP4 Player (Primary for GitHub Pages & Offline Classroom) -->
+          <div id="local-video-wrapper" class="w-full h-full min-h-[320px] flex flex-col items-center justify-center bg-[#060d18] p-4">
+            <video id="local-video-player" controls playsinline class="w-full max-h-[420px] rounded-lg border border-cyan-400/50 bg-black">
+              <source src="video_robot.mp4" type="video/mp4" />
+              Tu navegador no soporta la reproducción de video HTML5.
+            </video>
+          </div>
+
+          <!-- YouTube Embed Iframe (Secondary option on GitHub Pages) -->
+          <iframe
+            id="youtube-video-iframe"
+            class="hidden w-full h-full min-h-[320px]"
+            src=""
+            title="Video Educativo: Anatomía de un Robot"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen>
+          </iframe>
+        </div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-300">
+            <span>Observa con atención el video y luego explora cada pieza en 3D.</span>
+            <a href="https://youtu.be/8efFLVVlA3E" target="_blank" rel="noopener noreferrer" class="text-cyan-300 hover:text-yellow-300 underline font-semibold">
+              Abrir en YouTube ↗
+            </a>
+          </div>
+
+          <button onclick="exitVideoLessonToContent()" class="btn-cyber-yellow px-5 py-2.5 rounded-xl font-display font-bold text-xs sm:text-sm tracking-wider cursor-pointer">
+            Explorar Piezas en 3D →
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* ============================================================================
+       1. SYNTHESIZED FUTURISTIC SOUND EFFECTS (WEB AUDIO API - ZERO EXTERNAL URLS)
+    ============================================================================ */
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('icon-sound-on').classList.toggle('hidden', !soundEnabled);
+      document.getElementById('icon-sound-off').classList.toggle('hidden', soundEnabled);
+    }
+
+    function playTone(type) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.08);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } else if (type === 'success') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.setValueAtTime(554.37, now + 0.1);
+          osc.frequency.setValueAtTime(659.25, now + 0.2);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+          osc.start(now);
+          osc.stop(now + 0.42);
+        } else if (type === 'error') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.linearRampToValueAtTime(170, now + 0.25);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } else if (type === 'servo') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.linearRampToValueAtTime(420, now + 0.35);
+          gain.gain.setValueAtTime(0.07, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        }
+      } catch (e) {
+        // Ignore audio restrictions if not yet interacted
+      }
+    }
+
+    /* ============================================================================
+       2. CURRICULAR CONTENT & EVALUATION DATA
+    ============================================================================ */
+    const ROBOT_PARTS = [
+      {
+        key: 'controlador',
+        title: '1. EL CONTROLADOR (CEREBRO ELECTRÓNICO)',
+        description: 'El controlador es el componente central que gestiona todas las operaciones del robot. Procesa datos de sensores y ejecuta comandos para actuadores, coordinando el comportamiento del robot.',
+        demoLabel: 'Activar Demo',
+        demoHint: 'Procesando señales y enviando pulsos por los circuitos...',
+        features: [
+          { text: 'Procesa todas las órdenes.', icon: 'clock' },
+          { text: 'Envía instrucciones a las partes.', icon: 'send' },
+          { text: 'Microprocesador central de alta velocidad.', icon: 'cpu' },
+          { text: 'Conecta sensores y actuadores.', icon: 'chip' },
+          { text: 'Almacena algoritmos de control.', icon: 'brain' },
+          { text: 'Interfaces para programación.', icon: 'usb' }
+        ]
+      },
+      {
+        key: 'sensores',
+        title: '2. LOS SENSORES (SENTIDOS DEL ROBOT)',
+        description: 'Los sensores son dispositivos que permiten al robot recopilar información de su entorno. Actúan como los sentidos del robot, detectando luz, sonido, temperatura, distancia y más:',
+        demoLabel: 'Activar Demo',
+        demoHint: 'Emitiendo ondas ultrasónicas y escaneo óptico hacia el objeto...',
+        features: [
+          { text: 'Detectan la luz y el color.', icon: 'eye' },
+          { text: 'Perciben el sonido y la frecuencia.', icon: 'ear' },
+          { text: 'Miden la temperatura ambiente.', icon: 'temp' },
+          { text: 'Determinan la distancia a objetos.', icon: 'sonar' },
+          { text: 'Detectan el movimiento y la inclinación.', icon: 'gyro' },
+          { text: 'Perciben la presión y el contacto.', icon: 'touch' }
+        ]
+      },
+      {
+        key: 'actuadores',
+        title: '3. LOS ACTUADORES (MÚSCULOS DEL ROBOT)',
+        description: 'Los actuadores son dispositivos que transforman la energía eléctrica en movimiento físico. Son los músculos del robot: motores, engranajes y brazos que hacen girar ruedas y mover piezas:',
+        demoLabel: 'Activar Demo',
+        demoHint: '¡Motor acelerado! Bobinas de cobre, engranajes y brazo girando con anillos de energía.',
+        features: [
+          { text: 'Giran ruedas y articulaciones.', icon: 'gear' },
+          { text: 'Realizan movimientos lineales.', icon: 'linear' },
+          { text: 'Permiten agarrar objetos.', icon: 'claw' },
+          { text: 'Levantan cargas pesadas.', icon: 'crane' },
+          { text: 'Generan succión para sujeción.', icon: 'suction' },
+          { text: 'Fijan mecanismos en posición.', icon: 'spring' }
+        ]
+      },
+      {
+        key: 'energia',
+        title: '4. LA FUENTE DE ENERGÍA (CORAZÓN ENERGÉTICO)',
+        description: 'La fuente de energía suministra la electricidad necesaria para que todos los componentes electrónicos y mecánicos del robot funcionen de manera continua y segura.',
+        demoLabel: 'Activar Demo',
+        demoHint: 'Flujo eléctrico activo alimentando todo el sistema...',
+        features: [
+          { text: 'Almacena energía eléctrica.', icon: 'battery' },
+          { text: 'Alimenta al controlador y sensores.', icon: 'bolt' },
+          { text: 'Entrega potencia a los motores.', icon: 'power' },
+          { text: 'Regula el voltaje del sistema.', icon: 'shield' }
+        ]
+      },
+      {
+        key: 'chasis',
+        title: '5. LA ESTRUCTURA MECÁNICA O CHASIS (ESQUELETO)',
+        description: 'La estructura mecánica o chasis es el armazón físico que sostiene, protege y une todos los componentes del robot, dándole forma, estabilidad y resistencia.',
+        demoLabel: 'Activar Demo',
+        demoHint: 'Mostrando soporte estructural, ruedas y carcasa protectora...',
+        features: [
+          { text: 'Sostiene todas las piezas.', icon: 'frame' },
+          { text: 'Protege los circuitos internos.', icon: 'armor' },
+          { text: 'Permite el desplazamiento.', icon: 'wheel' },
+          { text: 'Define la forma del robot.', icon: 'cube' }
+        ]
+      }
+    ];
+
+    const FEATURE_ICONS = {
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+      send: '<path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>',
+      cpu: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>',
+      chip: '<rect x="4" y="7" width="16" height="10" rx="1"/><path d="M7 4v3M12 4v3M17 4v3M7 17v3M12 17v3M17 17v3"/>',
+      brain: '<path d="M9.5 2A4.5 4.5 0 005 6.5c0 .41.06.81.16 1.19A4.5 4.5 0 004 15.5 4.5 4.5 0 008.5 20h7a4.5 4.5 0 004.5-4.5 4.5 4.5 0 00-1.16-7.81c.1-.38.16-.78.16-1.19A4.5 4.5 0 0014.5 2h-5z"/>',
+      usb: '<path d="M12 2v15M12 2l3 3M12 2L9 5M12 11l5-3v4M12 14l-5-3v3"/><circle cx="12" cy="19" r="2"/>',
+      eye: '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
+      ear: '<path d="M6 8.5a6.5 6.5 0 1113 0c0 6-6 6-6 10a3.5 3.5 0 11-7 0"/>',
+      temp: '<path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/>',
+      sonar: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>',
+      gyro: '<circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="4" ry="10"/>',
+      touch: '<path d="M18 11V6a2 2 0 00-4 0v4M14 10V4a2 2 0 00-4 0v6M10 10.5V6a2 2 0 00-4 0v8a6 6 0 0012 0v-3a2 2 0 00-4 0"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+      linear: '<path d="M4 7h16M4 17h16M7 4l-3 3 3 3M17 4l3 3-3 3"/><rect x="8" y="10" width="8" height="4" rx="1"/>',
+      claw: '<path d="M12 3v5M8 8h8l3 6-3 5M8 8l-3 6 3 5"/>',
+      crane: '<circle cx="12" cy="7" r="4"/><path d="M12 11v6a2 2 0 102 2"/>',
+      suction: '<path d="M9 3h6M8 7h8M7 11h10M5 18h14l-2-4H7l-2 4z"/>',
+      spring: '<path d="M9 3h6M9 7l6 2-6 2 6 2-6 2 6 2M9 21h6"/>',
+      battery: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M7 10v4M11 10v4"/>',
+      bolt: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+      power: '<path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/>',
+      shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+      frame: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+      armor: '<path d="M12 2l8 4v6c0 5.5-3.8 10.7-8 12-4.2-1.3-8-6.5-8-12V6l8-4z"/>',
+      wheel: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5M12 15v5M4 12h5M15 12h5"/>',
+      cube: '<path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>'
+    };
+
+    const EVALUATION_QUESTIONS = [
+      {
+        code: 'P1',
+        caseTag: 'CASO ROBÓTICO #1 • EVASIÓN DE OBSTÁCULOS',
+        telemetryClue: 'Alerta: Pared detectada a 15 cm en el pasillo escolar',
+        enunciado: 'Un robot explorador avanza por el aula y frena justo antes de chocar contra una mochila. ¿Qué componente captó la distancia hacia el objeto y envió esa señal?',
+        options: [
+          'Los actuadores de las ruedas',
+          'Los sensores (sentidos del robot)',
+          'La estructura mecánica o chasis'
+        ],
+        correctIndex: 1, // OP2
+        whyPositive: '¡Exacto! Los sensores actúan como los sentidos del robot (vista, oído, distancia) y detectan los estímulos del entorno para avisar al controlador antes de chocar.',
+        whyNegative: [
+          'Los actuadores (motores) ejecutan el movimiento de las ruedas, pero no pueden ver ni medir distancias hacia los objetos.',
+          '',
+          'La estructura o chasis sostiene las piezas y protege al robot, pero no percibe estímulos del entorno como luz o distancia.'
+        ]
+      },
+      {
+        code: 'P2',
+        caseTag: 'CASO ROBÓTICO #2 • TOMA DE DECISIONES',
+        telemetryClue: 'Estado CPU: Procesando algoritmo de giro a la derecha',
+        enunciado: 'Cuando los sensores detectan demasiada luz o un obstáculo, ¿qué componente analiza esos datos, ejecuta el programa y decide qué orden enviar?',
+        options: [
+          'La batería de litio recargable',
+          'Los engranajes de transmisión',
+          'El controlador (cerebro electrónico)'
+        ],
+        correctIndex: 2, // OP3
+        whyPositive: '¡Muy bien! El controlador es el microprocesador central que recibe los datos de los sensores, consulta sus algoritmos y envía órdenes a los actuadores.',
+        whyNegative: [
+          'La batería suministra energía eléctrica al sistema, pero no tiene capacidad para analizar datos ni ejecutar programas.',
+          'Los engranajes transmiten fuerza mecánica en los actuadores, pero no procesan información ni toman decisiones.',
+          ''
+        ]
+      },
+      {
+        code: 'P3',
+        caseTag: 'CASO ROBÓTICO #3 • ACCIÓN Y MOVIMIENTO',
+        telemetryClue: 'Orden recibida: Girar eje a 120 RPM y levantar brazo',
+        enunciado: 'El robot recibió la orden de girar sus ruedas y levantar un bloque con su pinza. ¿Qué componentes transforman la electricidad en ese movimiento físico?',
+        options: [
+          'Los actuadores (músculos del robot)',
+          'El sensor de temperatura ambiente',
+          'La carcasa protectora exterior'
+        ],
+        correctIndex: 0, // OP1
+        whyPositive: '¡Correcto! Los actuadores (motores eléctricos, engranajes y pinzas) son los músculos del robot que convierten la energía eléctrica en movimiento real.',
+        whyNegative: [
+          '',
+          'El sensor de temperatura solo mide el calor o frío del ambiente; no genera movimiento ni fuerza física.',
+          'La carcasa exterior forma parte del chasis para proteger los circuitos, pero no produce giro ni movimiento articulado.'
+        ]
+      },
+      {
+        code: 'P4',
+        caseTag: 'CASO ROBÓTICO #4 • SUMINISTRO ELÉCTRICO',
+        telemetryClue: 'Voltaje del sistema: 0.0 V — Pantallas y motores apagados',
+        enunciado: 'Durante una demostración en la Escuela Particular Betel, el robot se apaga por completo y sus motores pierden potencia. ¿Qué componente necesita recargarse?',
+        options: [
+          'El puerto USB de programación',
+          'El sensor ultrasónico frontal',
+          'La fuente de energía (corazón eléctrico)'
+        ],
+        correctIndex: 2, // OP3
+        whyPositive: '¡Excelente deducción! La fuente de energía almacena y entrega la electricidad necesaria para alimentar al controlador, sensores y actuadores.',
+        whyNegative: [
+          'El puerto USB sirve para transferir el programa desde la computadora al controlador, pero no almacena energía para mover el robot.',
+          'El sensor ultrasónico mide distancias, pero consume energía en lugar de suministrarla al resto del robot.',
+          ''
+        ]
+      },
+      {
+        code: 'P5',
+        caseTag: 'CASO ROBÓTICO #5 • SOPORTE Y PROTECCIÓN',
+        telemetryClue: 'Integridad mecánica: Armazón y soporte de componentes',
+        enunciado: 'Si diseñamos un robot para explorar terrenos irregulares y necesitamos que sus circuitos internos estén firmes y protegidos ante golpes, ¿qué parte cumple esa función?',
+        options: [
+          'El microprocesador de alta velocidad',
+          'La estructura mecánica o chasis',
+          'El micrófono detector de sonido'
+        ],
+        correctIndex: 1, // OP2
+        whyPositive: '¡Perfecto! La estructura mecánica o chasis funciona como el esqueleto del robot: une, sostiene y protege todas las piezas dándole forma y estabilidad.',
+        whyNegative: [
+          'El microprocesador es el cerebro que procesa órdenes, pero necesita estar montado sobre un chasis para no quedar suelto.',
+          '',
+          'El micrófono es un sensor que capta ondas sonoras, pero no brinda soporte físico ni protección estructural.'
+        ]
+      }
+    ];
+
+    /* ============================================================================
+       3. PROCEDURAL THREE.JS 3D ROBOT & COMPONENT BUILDERS
+    ============================================================================ */
+    function createRobotMaterialPalette() {
+      return {
+        chassisDark: new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.65, roughness: 0.35 }),
+        chassisLight: new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7, roughness: 0.28 }),
+        glassArmor: new THREE.MeshPhysicalMaterial({
+          color: 0x00e5ff,
+          transparent: true,
+          opacity: 0.26,
+          metalness: 0.1,
+          roughness: 0.15
+        }),
+        pcbGreen: new THREE.MeshStandardMaterial({ color: 0x064e3b, metalness: 0.3, roughness: 0.5 }),
+        chipBlack: new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.4, roughness: 0.4 }),
+        goldPin: new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.85, roughness: 0.2 }),
+        cyanGlow: new THREE.MeshStandardMaterial({
+          color: 0x00e5ff,
+          emissive: 0x00e5ff,
+          emissiveIntensity: 0.85,
+          roughness: 0.2
+        }),
+        yellowGlow: new THREE.MeshStandardMaterial({
+          color: 0xfde047,
+          emissive: 0xfacc15,
+          emissiveIntensity: 0.85,
+          roughness: 0.2
+        }),
+        servoBlue: new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.45, roughness: 0.35 }),
+        copperCoil: new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.85, roughness: 0.25, emissive: 0x78350f, emissiveIntensity: 0.35 }),
+        rubberTire: new THREE.MeshStandardMaterial({ color: 0x090d16, metalness: 0.1, roughness: 0.85 })
+      };
+    }
+
+    // Builds a complete, articulated educational 3D robot with named clickable sub-groups
+    function buildFullEducationalRobot() {
+      const mat = createRobotMaterialPalette();
+      const root = new THREE.Group();
+
+      // 1. CHASIS (Estructura Mecánica / Esqueleto + Ruedas)
+      const chasisGroup = new THREE.Group();
+      chasisGroup.name = 'chasis';
+
+      // Base platform
+      const baseGeo = new THREE.BoxGeometry(2.4, 0.28, 2.0);
+      const baseMesh = new THREE.Mesh(baseGeo, mat.chassisDark);
+      baseMesh.position.y = -0.65;
+      baseMesh.userData.partKey = 'chasis';
+      chasisGroup.add(baseMesh);
+
+      // Neon trim around base
+      const trimGeo = new THREE.BoxGeometry(2.46, 0.06, 2.06);
+      const trimMesh = new THREE.Mesh(trimGeo, mat.cyanGlow);
+      trimMesh.position.y = -0.65;
+      trimMesh.userData.partKey = 'chasis';
+      chasisGroup.add(trimMesh);
+
+      // Vertical frame pillars
+      const pillarGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.5, 12);
+      const pillarPositions = [
+        [-0.95, 0.1, -0.75],
+        [0.95, 0.1, -0.75],
+        [-0.95, 0.1, 0.75],
+        [0.95, 0.1, 0.75]
+      ];
+      pillarPositions.forEach(pos => {
+        const p = new THREE.Mesh(pillarGeo, mat.chassisLight);
+        p.position.set(...pos);
+        p.userData.partKey = 'chasis';
+        chasisGroup.add(p);
+      });
+
+      // Top torso plate
+      const topPlate = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.18, 1.8), mat.chassisDark);
+      topPlate.position.y = 0.85;
+      topPlate.userData.partKey = 'chasis';
+      chasisGroup.add(topPlate);
+
+      // Translucent protective chest shield
+      const shieldMesh = new THREE.Mesh(new THREE.BoxGeometry(2.15, 1.35, 1.75), mat.glassArmor);
+      shieldMesh.position.y = 0.1;
+      shieldMesh.userData.partKey = 'chasis';
+      chasisGroup.add(shieldMesh);
+
+      // 4 Wheels
+      const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.26, 20);
+      wheelGeo.rotateZ(Math.PI / 2);
+      const hubGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.28, 12);
+      hubGeo.rotateZ(Math.PI / 2);
+
+      const wheelCoords = [
+        [-1.35, -0.72, 0.65],
+        [1.35, -0.72, 0.65],
+        [-1.35, -0.72, -0.65],
+        [1.35, -0.72, -0.65]
+      ];
+      wheelCoords.forEach(c => {
+        const wGroup = new THREE.Group();
+        const tire = new THREE.Mesh(wheelGeo, mat.rubberTire);
+        const hub = new THREE.Mesh(hubGeo, mat.cyanGlow);
+        tire.userData.partKey = 'chasis';
+        hub.userData.partKey = 'chasis';
+        wGroup.add(tire, hub);
+        wGroup.position.set(...c);
+        chasisGroup.add(wGroup);
+      });
+
+      root.add(chasisGroup);
+
+      // 2. CONTROLADOR (Cerebro Electrónico en el pecho superior)
+      const ctrlGroup = new THREE.Group();
+      ctrlGroup.name = 'controlador';
+      ctrlGroup.position.set(0, 0.35, 0.25);
+
+      const pcbBoard = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.72, 0.12), mat.pcbGreen);
+      pcbBoard.userData.partKey = 'controlador';
+      ctrlGroup.add(pcbBoard);
+
+      const cpuChip = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.16), mat.chipBlack);
+      cpuChip.position.z = 0.04;
+      cpuChip.userData.partKey = 'controlador';
+      ctrlGroup.add(cpuChip);
+
+      const cpuCoreGlow = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.26, 0.18), mat.cyanGlow);
+      cpuCoreGlow.position.z = 0.045;
+      cpuCoreGlow.userData.partKey = 'controlador';
+      ctrlGroup.add(cpuCoreGlow);
+
+      // Gold pins around CPU
+      for (let i = -2; i <= 2; i++) {
+        const pinH = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.04, 0.14), mat.goldPin);
+        pinH.position.set(0, i * 0.09, 0.03);
+        pinH.userData.partKey = 'controlador';
+        ctrlGroup.add(pinH);
+      }
+      root.add(ctrlGroup);
+
+      // 3. FUENTE DE ENERGÍA (Batería de Litio en el pecho inferior / abdomen)
+      const energyGroup = new THREE.Group();
+      energyGroup.name = 'energia';
+      energyGroup.position.set(0, -0.22, 0.2);
+
+      const batteryPack = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.42, 0.45), mat.chassisDark);
+      batteryPack.userData.partKey = 'energia';
+      energyGroup.add(batteryPack);
+
+      for (let b = -1; b <= 1; b++) {
+        const cellBar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.24, 0.48), mat.yellowGlow);
+        cellBar.position.set(b * 0.38, 0, 0);
+        cellBar.name = 'robotBatteryCell_' + (b + 1);
+        cellBar.userData.partKey = 'energia';
+        energyGroup.add(cellBar);
+      }
+
+      const terminalPos = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 12), mat.goldPin);
+      terminalPos.position.set(0.42, 0.26, 0);
+      terminalPos.userData.partKey = 'energia';
+      const terminalNeg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 12), mat.cyanGlow);
+      terminalNeg.position.set(-0.42, 0.26, 0);
+      terminalNeg.userData.partKey = 'energia';
+      energyGroup.add(terminalPos, terminalNeg);
+
+      root.add(energyGroup);
+
+      // 4. SENSORES (Cabeza con visor oscuro, ojos ultrasónicos/ópticos brillantes y antena)
+      const sensorGroup = new THREE.Group();
+      sensorGroup.name = 'sensores';
+      sensorGroup.position.set(0, 1.38, 0);
+
+      // Neck
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.35, 16), mat.chassisLight);
+      neck.position.y = -0.32;
+      neck.userData.partKey = 'sensores';
+      sensorGroup.add(neck);
+
+      // Head housing
+      const headBox = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.68, 0.74), mat.chassisDark);
+      headBox.userData.partKey = 'sensores';
+      sensorGroup.add(headBox);
+
+      // Recessed dark visor frame on the front face (z = +0.38)
+      const visorFrame = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.48, 0.08), mat.chipBlack);
+      visorFrame.position.set(0, 0.02, 0.38);
+      visorFrame.userData.partKey = 'sensores';
+      sensorGroup.add(visorFrame);
+
+      // Protruding Twin Ultrasonic/Optical Robot Eyes (clearly visible in front of visor)
+      const eyeBarrelGeo = new THREE.CylinderGeometry(0.21, 0.22, 0.2, 24);
+      eyeBarrelGeo.rotateX(Math.PI / 2);
+      const eyeLensGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.06, 24);
+      eyeLensGeo.rotateX(Math.PI / 2);
+      const pupilRingGeo = new THREE.TorusGeometry(0.09, 0.02, 12, 24);
+
+      [-0.35, 0.35].forEach((xPos, idx) => {
+        const barrel = new THREE.Mesh(eyeBarrelGeo, mat.chassisLight);
+        barrel.position.set(xPos, 0.02, 0.46);
+        barrel.userData.partKey = 'sensores';
+
+        const lens = new THREE.Mesh(eyeLensGeo, mat.cyanGlow);
+        lens.position.set(xPos, 0.02, 0.56);
+        lens.name = 'robotEyeLens_' + idx;
+        lens.userData.partKey = 'sensores';
+
+        const pupil = new THREE.Mesh(pupilRingGeo, mat.yellowGlow);
+        pupil.position.set(xPos, 0.02, 0.6);
+        pupil.name = 'robotEyePupil_' + idx;
+        pupil.userData.partKey = 'sensores';
+
+        sensorGroup.add(barrel, lens, pupil);
+      });
+
+      // Top Antenna with glowing beacon
+      const antStick = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.4, 10), mat.chassisLight);
+      antStick.position.set(0, 0.52, 0);
+      antStick.userData.partKey = 'sensores';
+      const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), mat.yellowGlow);
+      antTip.position.set(0, 0.74, 0);
+      antTip.name = 'robotAntennaTip';
+      antTip.userData.partKey = 'sensores';
+      sensorGroup.add(antStick, antTip);
+
+      // Forward Radar Scan Ring (animated when sensors are active)
+      const headScanRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.28, 0.34, 28),
+        new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.0 })
+      );
+      headScanRing.position.set(0, 0.02, 0.72);
+      headScanRing.name = 'robotHeadScanRing';
+      headScanRing.userData.partKey = 'sensores';
+      sensorGroup.add(headScanRing);
+
+      root.add(sensorGroup);
+
+      // 5. ACTUADORES (Motores eléctricos cilíndricos en hombros con brazos giratorios)
+      const actGroup = new THREE.Group();
+      actGroup.name = 'actuadores';
+
+      [-1.34, 1.34].forEach((xSide, idx) => {
+        const armPivot = new THREE.Group();
+        armPivot.position.set(xSide, 0.55, 0);
+        armPivot.name = idx === 0 ? 'leftArm' : 'rightArm';
+
+        // Cylindrical electric motor housing on shoulder
+        const motorCyl = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.48, 20), mat.servoBlue);
+        motorCyl.rotation.z = Math.PI / 2;
+        motorCyl.userData.partKey = 'actuadores';
+        armPivot.add(motorCyl);
+
+        // Glowing gear cap on motor shaft
+        const motorGear = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.08, 12), mat.yellowGlow);
+        motorGear.rotation.z = Math.PI / 2;
+        motorGear.position.x = xSide > 0 ? 0.26 : -0.26;
+        motorGear.userData.partKey = 'actuadores';
+        armPivot.add(motorGear);
+
+        // Articulated arm coupled to motor
+        const upperArm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.78, 0.18), mat.chassisLight);
+        upperArm.position.set(xSide > 0 ? 0.24 : -0.24, -0.36, 0.12);
+        upperArm.rotation.x = -0.3;
+        upperArm.userData.partKey = 'actuadores';
+        armPivot.add(upperArm);
+
+        // Gripper tip
+        const clawTip = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.26), mat.cyanGlow);
+        clawTip.position.set(xSide > 0 ? 0.24 : -0.24, -0.76, 0.26);
+        clawTip.userData.partKey = 'actuadores';
+        armPivot.add(clawTip);
+
+        actGroup.add(armPivot);
+      });
+
+      root.add(actGroup);
+
+      return root;
+    }
+
+    // Builds detailed isolated 3D models for each of the 5 parts in "Contenido"
+    function buildIsolatedPartModel(partIndex) {
+      const mat = createRobotMaterialPalette();
+      const group = new THREE.Group();
+
+      if (partIndex === 0) {
+        // 1. EL CONTROLADOR (Detailed Microcontroller PCB)
+        const board = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.18, 2.2), mat.pcbGreen);
+        group.add(board);
+
+        // Central Microprocessor
+        const chip = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.24, 1.1), mat.chipBlack);
+        chip.position.y = 0.15;
+        group.add(chip);
+
+        const core = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.26, 0.55), mat.cyanGlow);
+        core.position.y = 0.16;
+        core.name = 'ctrlCore';
+        group.add(core);
+
+        // Metallic pins on all 4 sides
+        for (let i = -4; i <= 4; i++) {
+          const pinX = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 1.38), mat.goldPin);
+          pinX.position.set(i * 0.11, 0.12, 0);
+          const pinZ = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.12, 0.06), mat.goldPin);
+          pinZ.position.set(0, 0.12, i * 0.11);
+          group.add(pinX, pinZ);
+        }
+
+        // Illuminated circuit traces
+        const tracePositions = [
+          [-1.0, 0.1, -0.6], [1.0, 0.1, -0.6],
+          [-1.0, 0.1, 0.6], [1.0, 0.1, 0.6]
+        ];
+        tracePositions.forEach((pos, idx) => {
+          const led = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.22), idx % 2 === 0 ? mat.cyanGlow : mat.yellowGlow);
+          led.position.set(...pos);
+          led.name = 'ctrlLed_' + idx;
+          group.add(led);
+        });
+
+        // USB Programming Port
+        const usbPort = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.36, 0.6), mat.chassisLight);
+        usbPort.position.set(-1.45, 0.24, 0);
+        group.add(usbPort);
+
+      } else if (partIndex === 1) {
+        // 2. LOS SENSORES (Módulo HC-SR04 de doble ojo ultrasónico + lente óptico + ondas de radar)
+        const sensorHousing = new THREE.Mesh(new THREE.BoxGeometry(0.26, 1.35, 2.55), mat.pcbGreen);
+        sensorHousing.position.set(-0.65, 0.2, 0);
+        group.add(sensorHousing);
+
+        const visorFace = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.15, 2.35), mat.chipBlack);
+        visorFace.position.set(-0.5, 0.2, 0);
+        group.add(visorFace);
+
+        // Twin Cylindrical Ultrasonic Eye Barrels + Glowing Cyan Optical Lenses + Yellow Pupil Rings
+        [-0.6, 0.6].forEach((zPos, idx) => {
+          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.44, 0.55, 28), mat.chassisLight);
+          barrel.rotation.z = Math.PI / 2;
+          barrel.position.set(-0.25, 0.26, zPos);
+
+          const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.08, 28), mat.cyanGlow);
+          lens.rotation.z = Math.PI / 2;
+          lens.position.set(0.03, 0.26, zPos);
+          lens.name = 'isoEyeLens_' + idx;
+
+          const pupil = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 12, 24), mat.yellowGlow);
+          pupil.rotation.y = Math.PI / 2;
+          pupil.position.set(0.08, 0.26, zPos);
+
+          group.add(barrel, lens, pupil);
+        });
+
+        // Optical Light/Color Sensor Lens below the twin eyes
+        const opticalLens = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), mat.yellowGlow);
+        opticalLens.position.set(-0.36, -0.24, 0);
+        group.add(opticalLens);
+
+        // Target obstacle block in front
+        const obstacle = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.35, 1.35), mat.yellowGlow);
+        obstacle.position.set(1.75, 0.2, 0);
+        obstacle.name = 'sensorObstacle';
+        group.add(obstacle);
+
+        // Animated Radar/Sonar Detection Rings
+        for (let w = 0; w < 3; w++) {
+          const ring = new THREE.Mesh(
+            new THREE.RingGeometry(0.24 + w * 0.18, 0.29 + w * 0.18, 28),
+            new THREE.MeshBasicMaterial({ color: w === 1 ? 0xfde047 : 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+          );
+          ring.rotation.y = Math.PI / 2;
+          ring.position.set(0.28 + w * 0.38, 0.25, 0);
+          ring.name = 'isoWave_' + w;
+          group.add(ring);
+        }
+
+      } else if (partIndex === 2) {
+        // 3. LOS ACTUADORES — REDISEÑO 3D CLARO DE MOTOR ELÉCTRICO CON MOVIMIENTO
+        // Base de montaje del motor
+        const mountBase = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.22, 1.7), mat.chassisDark);
+        mountBase.position.y = -0.85;
+        group.add(mountBase);
+
+        // Soportes del motor al chasis
+        [-0.75, -0.15].forEach(xSup => {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 1.15), mat.chassisLight);
+          leg.position.set(xSup, -0.48, 0);
+          group.add(leg);
+        });
+
+        // Carcasa cilíndrica metálica del motor eléctrico
+        const motorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 1.35, 28), mat.chassisLight);
+        motorBody.rotation.z = Math.PI / 2;
+        motorBody.position.set(-0.55, 0.08, 0);
+        group.add(motorBody);
+
+        // Tapa trasera del motor con terminales eléctricos
+        const backCap = new THREE.Mesh(new THREE.CylinderGeometry(0.66, 0.58, 0.24, 24), mat.servoBlue);
+        backCap.rotation.z = Math.PI / 2;
+        backCap.position.set(-1.32, 0.08, 0);
+        group.add(backCap);
+
+        // Terminales de alimentación (+ y -) en la parte trasera
+        const termPlus = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.14), mat.yellowGlow);
+        termPlus.position.set(-1.5, 0.25, 0.2);
+        const termMinus = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.14), mat.cyanGlow);
+        termMinus.position.set(-1.5, 0.25, -0.2);
+        group.add(termPlus, termMinus);
+
+        // Aletas de refrigeración alrededor de la carcasa
+        [-1.02, -0.84, -0.12].forEach(xFin => {
+          const fin = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 12, 32), mat.chassisDark);
+          fin.rotation.y = Math.PI / 2;
+          fin.position.set(xFin, 0.08, 0);
+          group.add(fin);
+        });
+
+        // Ventana transparente de inspección en el centro del motor para ver las bobinas
+        const clearWindow = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.69, 0.69, 0.56, 28, 1, true),
+          mat.glassArmor
+        );
+        clearWindow.rotation.z = Math.PI / 2;
+        clearWindow.position.set(-0.48, 0.08, 0);
+        group.add(clearWindow);
+
+        // Rotor interno con bobinas de cobre giratorias (visibles dentro de la ventana)
+        const rotorGroup = new THREE.Group();
+        rotorGroup.position.set(-0.48, 0.08, 0);
+        rotorGroup.name = 'motorRotorCoils';
+
+        const coreAxle = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.52, 16), mat.chassisDark);
+        coreAxle.rotation.z = Math.PI / 2;
+        rotorGroup.add(coreAxle);
+
+        for (let c = 0; c < 6; c++) {
+          const angle = (c * Math.PI * 2) / 6;
+          const coil = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.22, 0.18), mat.copperCoil);
+          coil.position.set(0, Math.cos(angle) * 0.36, Math.sin(angle) * 0.36);
+          coil.rotation.x = angle;
+          rotorGroup.add(coil);
+        }
+        group.add(rotorGroup);
+
+        // Eje metálico central que sale del motor hacia el sistema de transmisión
+        const mainShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 1.35, 18), mat.chassisLight);
+        mainShaft.rotation.z = Math.PI / 2;
+        mainShaft.position.set(0.65, 0.08, 0);
+        mainShaft.name = 'motorMainShaft';
+        group.add(mainShaft);
+
+        // Engranaje conductor amarillo neón acoplado al eje del motor
+        const driveGearGroup = new THREE.Group();
+        driveGearGroup.position.set(0.45, 0.08, 0);
+        driveGearGroup.name = 'isoGear1';
+
+        const gearHub = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.16, 20), mat.yellowGlow);
+        gearHub.rotation.z = Math.PI / 2;
+        driveGearGroup.add(gearHub);
+
+        for (let t = 0; t < 10; t++) {
+          const a = (t * Math.PI * 2) / 10;
+          const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.09), mat.yellowGlow);
+          tooth.position.set(0, Math.cos(a) * 0.41, Math.sin(a) * 0.41);
+          tooth.rotation.x = a;
+          driveGearGroup.add(tooth);
+        }
+        group.add(driveGearGroup);
+
+        // Engranaje conducido cian acoplado debajo
+        const drivenGearGroup = new THREE.Group();
+        drivenGearGroup.position.set(0.45, -0.52, 0.32);
+        drivenGearGroup.name = 'isoGear2';
+
+        const gear2Hub = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.14, 16), mat.cyanGlow);
+        gear2Hub.rotation.z = Math.PI / 2;
+        drivenGearGroup.add(gear2Hub);
+
+        for (let t = 0; t < 8; t++) {
+          const a = (t * Math.PI * 2) / 8;
+          const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.09, 0.07), mat.cyanGlow);
+          tooth.position.set(0, Math.cos(a) * 0.28, Math.sin(a) * 0.28);
+          tooth.rotation.x = a;
+          drivenGearGroup.add(tooth);
+        }
+        group.add(drivenGearGroup);
+
+        // Brazo / Hélice articulada en la punta del eje para visualizar claramente el movimiento
+        const propellerGroup = new THREE.Group();
+        propellerGroup.position.set(1.25, 0.08, 0);
+        propellerGroup.name = 'isoPropeller';
+
+        const propHub = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.2, 16), mat.servoBlue);
+        propHub.rotation.z = Math.PI / 2;
+        propellerGroup.add(propHub);
+
+        const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.45, 0.22), mat.yellowGlow);
+        const blade2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.22, 1.45), mat.cyanGlow);
+        propellerGroup.add(blade1, blade2);
+        group.add(propellerGroup);
+
+        // Flechas luminosas circulares indicando dirección de giro alrededor de la hélice
+        const arrowRingGroup = new THREE.Group();
+        arrowRingGroup.position.set(1.32, 0.08, 0);
+        arrowRingGroup.name = 'motorRotationArrows';
+
+        const arc1 = new THREE.Mesh(
+          new THREE.RingGeometry(0.84, 0.91, 28, 1, 0.2, Math.PI * 0.7),
+          new THREE.MeshBasicMaterial({ color: 0x00f2fe, side: THREE.DoubleSide })
+        );
+        arc1.rotation.y = Math.PI / 2;
+
+        const cone1 = new THREE.Mesh(
+          new THREE.ConeGeometry(0.11, 0.24, 12),
+          new THREE.MeshBasicMaterial({ color: 0x00f2fe })
+        );
+        cone1.position.set(0, Math.sin(0.2 + Math.PI * 0.7) * 0.875, Math.cos(0.2 + Math.PI * 0.7) * 0.875);
+        cone1.rotation.x = -(0.2 + Math.PI * 0.7);
+
+        const arc2 = new THREE.Mesh(
+          new THREE.RingGeometry(0.84, 0.91, 28, 1, Math.PI + 0.2, Math.PI * 0.7),
+          new THREE.MeshBasicMaterial({ color: 0xfde047, side: THREE.DoubleSide })
+        );
+        arc2.rotation.y = Math.PI / 2;
+
+        const cone2 = new THREE.Mesh(
+          new THREE.ConeGeometry(0.11, 0.24, 12),
+          new THREE.MeshBasicMaterial({ color: 0xfde047 })
+        );
+        cone2.position.set(0, Math.sin(Math.PI + 0.2 + Math.PI * 0.7) * 0.875, Math.cos(Math.PI + 0.2 + Math.PI * 0.7) * 0.875);
+        cone2.rotation.x = -(Math.PI + 0.2 + Math.PI * 0.7);
+
+        arrowRingGroup.add(arc1, cone1, arc2, cone2);
+        group.add(arrowRingGroup);
+
+        // Anillos de energía pulsantes (se iluminan al activar la Demo)
+        const energyPulseRing = new THREE.Mesh(
+          new THREE.TorusGeometry(0.95, 0.045, 12, 36),
+          new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.0 })
+        );
+        energyPulseRing.rotation.y = Math.PI / 2;
+        energyPulseRing.position.set(-0.48, 0.08, 0);
+        energyPulseRing.name = 'motorEnergyPulse';
+        group.add(energyPulseRing);
+
+      } else if (partIndex === 3) {
+        // 4. FUENTE DE ENERGÍA (Rechargeable Battery Module + Power Conduit)
+        const holder = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.35, 1.8), mat.chassisDark);
+        holder.position.y = -0.35;
+        group.add(holder);
+
+        // 4 High-capacity Li-Ion cells
+        for (let i = 0; i < 4; i++) {
+          const zPos = -0.6 + i * 0.4;
+          const cellBody = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.2, 20), mat.servoBlue);
+          cellBody.rotation.z = Math.PI / 2;
+          cellBody.position.set(0, 0.0, zPos);
+
+          const terminal = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.14, 14), mat.goldPin);
+          terminal.rotation.z = Math.PI / 2;
+          terminal.position.set(1.16, 0.0, zPos);
+
+          const chargeBar = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.08, 0.1), mat.yellowGlow);
+          chargeBar.position.set(0, 0.19, zPos);
+          chargeBar.name = 'batteryCell_' + i;
+
+          group.add(cellBody, terminal, chargeBar);
+        }
+
+        // Power output cable + pulse
+        const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12), mat.cyanGlow);
+        cable.position.set(1.5, 0.35, 0);
+        cable.rotation.z = -0.5;
+        group.add(cable);
+
+      } else if (partIndex === 4) {
+        // 5. ESTRUCTURA MECÁNICA O CHASIS (Frame + Wheels + Protective Shell)
+        const chassisPlate = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.22, 1.8), mat.chassisDark);
+        chassisPlate.position.y = -0.35;
+        group.add(chassisPlate);
+
+        // Aluminum structural beams
+        [[-1.1, 0.25, -0.75], [1.1, 0.25, -0.75], [-1.1, 0.25, 0.75], [1.1, 0.25, 0.75]].forEach(pos => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.2, 12), mat.chassisLight);
+          post.position.set(...pos);
+          group.add(post);
+        });
+
+        // Translucent protective canopy
+        const canopy = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.15, 1.7), mat.glassArmor);
+        canopy.position.y = 0.25;
+        canopy.name = 'isoCanopy';
+        group.add(canopy);
+
+        // 4 Traction Wheels
+        const wGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.26, 22);
+        wGeo.rotateZ(Math.PI / 2);
+        const hGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.28, 14);
+        hGeo.rotateZ(Math.PI / 2);
+
+        [[-1.45, -0.42, 0.6], [1.45, -0.42, 0.6], [-1.45, -0.42, -0.6], [1.45, -0.42, -0.6]].forEach((pos, i) => {
+          const wg = new THREE.Group();
+          wg.add(new THREE.Mesh(wGeo, mat.rubberTire), new THREE.Mesh(hGeo, mat.cyanGlow));
+          wg.position.set(...pos);
+          wg.name = 'isoWheel_' + i;
+          group.add(wg);
+        });
+      }
+
+      return group;
+    }
+
+    /* ============================================================================
+       4. THREE.JS SCENE MANAGERS (PORTADA, CONTENIDO, ACTIVIDAD)
+    ============================================================================ */
+    const scenes = {
+      portada: null,
+      contenido: null,
+      actividad: null
+    };
+
+    function setupThreeViewport(containerId, options = {}) {
+      const container = document.getElementById(containerId);
+      if (!container) return null;
+
+      const scene = new THREE.Scene();
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+      scene.add(ambientLight);
+
+      const dirLight1 = new THREE.DirectionalLight(0x00e5ff, 1.15);
+      dirLight1.position.set(5, 8, 6);
+      scene.add(dirLight1);
+
+      const dirLight2 = new THREE.DirectionalLight(0xfde047, 0.85);
+      dirLight2.position.set(-5, 4, -5);
+      scene.add(dirLight2);
+
+      // Subtle sci-fi grid pedestal
+      const gridHelper = new THREE.GridHelper(6, 12, 0x00e5ff, 0x1e293b);
+      gridHelper.position.y = -1.2;
+      scene.add(gridHelper);
+      const width = Math.max(container.clientWidth || 0, 320);
+      const height = Math.max(container.clientHeight || 0, 280);
+
+      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.set(0, 1.2, options.cameraZ || 5.4);
+      camera.lookAt(0, 0.1, 0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      // OrbitControls for smooth mouse and touch rotation & zoom
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.07;
+      controls.enablePan = false;
+      controls.minDistance = 2.6;
+      controls.maxDistance = 8.5;
+      controls.target.set(0, 0.1, 0);
+      controls.update();
+
+      // Orbit drag & zoom state
+      const state = {
+        scene,
+        camera,
+        renderer,
+        controls,
+        container,
+        model: null,
+        rotY: options.initialRotY || 0.35,
+        rotX: options.initialRotX || 0.15,
+        camZ: options.cameraZ || 5.4,
+        isDragging: false,
+        autoRotate: options.autoRotate !== false,
+        demoActive: false,
+        demoTimer: 0
+      };
+
+      controls.addEventListener('start', () => {
+        state.isDragging = true;
+      });
+      controls.addEventListener('end', () => {
+        state.isDragging = false;
+      });
+
+      return state;
+    }
+
+    function resizeThreeViewport(vp) {
+      if (!vp || !vp.container) return;
+      const w = vp.container.clientWidth;
+      const h = vp.container.clientHeight;
+      if (w > 0 && h > 0) {
+        vp.camera.aspect = w / h;
+        vp.camera.updateProjectionMatrix();
+        vp.renderer.setSize(w, h);
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      Object.values(scenes).forEach(resizeThreeViewport);
+    });
+
+    /* ============================================================================
+       5. YOUTUBE & LOCAL MP4 VIDEO PLAYER CONTROLLER
+    ============================================================================ */
+    const YOUTUBE_EMBED_URL = 'https://www.youtube.com/embed/8efFLVVlA3E?rel=0&modestbranding=1';
+    let currentVideoSource = 'local';
+
+    function openVideoLesson() {
+      playTone('click');
+      navigateTo('video');
+      switchVideoSource('local');
+    }
+
+    function switchVideoSource(source) {
+      currentVideoSource = source;
+      const ytFrame = document.getElementById('youtube-video-iframe');
+      const localWrap = document.getElementById('local-video-wrapper');
+      const localPlayer = document.getElementById('local-video-player');
+      const btnYt = document.getElementById('btn-source-youtube');
+      const btnLocal = document.getElementById('btn-source-local');
+
+      if (btnYt) btnYt.classList.toggle('tab-active', source === 'youtube');
+      if (btnLocal) btnLocal.classList.toggle('tab-active', source === 'local');
+
+      if (source === 'youtube') {
+        if (localPlayer) localPlayer.pause();
+        if (localWrap) localWrap.classList.add('hidden');
+        if (ytFrame) {
+          ytFrame.classList.remove('hidden');
+          ytFrame.src = YOUTUBE_EMBED_URL;
+        }
+      } else {
+        if (ytFrame) {
+          ytFrame.src = '';
+          ytFrame.classList.add('hidden');
+        }
+        if (localWrap) localWrap.classList.remove('hidden');
+      }
+    }
+
+    function stopAllVideos() {
+      const ytFrame = document.getElementById('youtube-video-iframe');
+      const localPlayer = document.getElementById('local-video-player');
+      if (ytFrame) ytFrame.src = '';
+      if (localPlayer) localPlayer.pause();
+    }
+
+    function exitVideoLesson() {
+      stopAllVideos();
+      navigateTo('menu');
+    }
+
+    function exitVideoLessonToContent() {
+      stopAllVideos();
+      navigateTo('contenido');
+    }
+
+    /* ============================================================================
+       6. NAVIGATION CONTROLLER & PART EXPLORATION LOGIC
+    ============================================================================ */
+    const ALL_SCREENS = ['portada', 'pedagogia', 'menu', 'contenido', 'evaluacion', 'actividad', 'video'];
+    let currentPartIdx = 0;
+    let content3DMode = 'isolated';
+
+    function highlightPartInRobot(robotModel, targetKey) {
+      if (!robotModel) return;
+      robotModel.traverse(child => {
+        if (child.isMesh && child.userData.partKey) {
+          if (!child.userData.origMat) {
+            child.userData.origMat = child.material;
+          }
+          child.material = child.userData.origMat.clone();
+          if (child.userData.partKey === targetKey) {
+            if (child.material.emissive) {
+              child.material.emissive.setHex(0xfde047);
+              child.material.emissiveIntensity = 0.55;
+            }
+          } else {
+            child.material.transparent = true;
+            child.material.opacity = 0.25;
+          }
+        }
+      });
+    }
+
+    function selectPart(index) {
+      playTone('click');
+      currentPartIdx = index;
+      const part = ROBOT_PARTS[index];
+
+      // Update active tab button
+      ROBOT_PARTS.forEach((_, idx) => {
+        const tabBtn = document.getElementById('tab-part-' + idx);
+        if (tabBtn) tabBtn.classList.toggle('tab-active', idx === index);
+      });
+
+      // Update text & features list
+      document.getElementById('part-title').textContent = part.title;
+      document.getElementById('part-description').textContent = part.description;
+      document.getElementById('btn-demo-label').textContent = part.demoLabel;
+      document.getElementById('part-counter').textContent = `Pieza ${index + 1} de ${ROBOT_PARTS.length}`;
+      document.getElementById('demo-status-text').textContent = 'Arrastra para rotar • Rueda/Pellizco para acercar';
+
+      const featuresList = document.getElementById('part-features');
+      featuresList.innerHTML = part.features.map(f => `
+        <li class="flex items-center gap-3 text-slate-200 text-sm sm:text-base">
+          <span class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-400/60 flex items-center justify-center shrink-0 text-cyan-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              ${FEATURE_ICONS[f.icon] || FEATURE_ICONS.cpu}
+            </svg>
+          </span>
+          <span>${f.text}</span>
+        </li>
+      `).join('');
+
+      // Rebuild 3D content viewport model
+      const vp = scenes.contenido;
+      if (vp) {
+        vp.demoActive = false;
+        if (vp.model) {
+          vp.scene.remove(vp.model);
+        }
+        if (content3DMode === 'isolated') {
+          vp.model = buildIsolatedPartModel(index);
+          vp.rotX = 0.25;
+          vp.rotY = 0.45;
+        } else {
+          vp.model = buildFullEducationalRobot();
+          highlightPartInRobot(vp.model, part.key);
+          vp.rotX = 0.15;
+          vp.rotY = 0.45;
+        }
+        vp.scene.add(vp.model);
+      }
+    }
+
+    function setContent3DMode(mode) {
+      playTone('click');
+      content3DMode = mode;
+      document.getElementById('btn-view-isolated').classList.toggle('tab-active', mode === 'isolated');
+      document.getElementById('btn-view-robot').classList.toggle('tab-active', mode === 'robot');
+      selectPart(currentPartIdx);
+    }
+
+    function nextPart() {
+      selectPart((currentPartIdx + 1) % ROBOT_PARTS.length);
+    }
+
+    function prevPart() {
+      selectPart((currentPartIdx - 1 + ROBOT_PARTS.length) % ROBOT_PARTS.length);
+    }
+
+    function navigateTo(screenId) {
+      if (screenId !== 'video') {
+        stopAllVideos();
+      }
+      playTone('click');
+      ALL_SCREENS.forEach(id => {
+        const el = document.getElementById('screen-' + id);
+        if (el) el.classList.toggle('hidden', id !== screenId);
+      });
+
+      // Resize or initialize active Three.js canvas once the section is visible
+      requestAnimationFrame(() => {
+        if (screenId === 'portada') {
+          resizeThreeViewport(scenes.portada);
+        }
+        if (screenId === 'contenido') {
+          if (!scenes.contenido) {
+            scenes.contenido = setupThreeViewport('canvas-contenido-container', { cameraZ: 5.0, autoRotate: false });
+          }
+          resizeThreeViewport(scenes.contenido);
+          selectPart(currentPartIdx);
+        }
+        if (screenId === 'actividad') {
+          ensureActivitySceneInitialized();
+        }
+      });
+    }
+
+    function triggerPartDemo() {
+      const vp = scenes.contenido;
+      if (!vp) return;
+      playTone('servo');
+      vp.demoActive = true;
+      vp.demoTimer = 3.2; // 3.2 seconds animated demonstration
+      document.getElementById('demo-status-text').textContent = ROBOT_PARTS[currentPartIdx].demoHint;
+    }
+
+    function zoomContentCamera(delta) {
+      const vp = scenes.contenido;
+      if (!vp) return;
+      const dir = vp.camera.position.clone().sub(vp.controls.target).normalize();
+      const dist = vp.camera.position.distanceTo(vp.controls.target);
+      const nextDist = Math.max(2.6, Math.min(8.5, dist + delta));
+      vp.camera.position.copy(vp.controls.target).addScaledVector(dir, nextDist);
+      vp.controls.update();
+    }
+
+    function resetContentCamera() {
+      const vp = scenes.contenido;
+      if (!vp) return;
+      vp.controls.target.set(0, 0.1, 0);
+      vp.camera.position.set(0, 1.2, 5.0);
+      vp.controls.update();
+      vp.rotX = content3DMode === 'isolated' ? 0.25 : 0.15;
+      vp.rotY = 0.45;
+    }
+
+    /* ============================================================================
+       6. EVALUATION FLOW (EXACT P1 -> P5 DIAGRAM IMPLEMENTATION)
+    ============================================================================ */
+    let evalCurrentIdx = 0;
+    let evalScore = 0;
+    let evalOrder = [];
+
+    function startEvaluation() {
+      playTone('click');
+      evalCurrentIdx = 0;
+      evalScore = 0;
+      // Keep P1-P5 progression while randomizing option positions dynamically on each run
+      evalOrder = EVALUATION_QUESTIONS.map(q => {
+        const indexedOptions = q.options.map((text, idx) => ({
+          text,
+          isCorrect: idx === q.correctIndex,
+          why: idx === q.correctIndex ? q.whyPositive : q.whyNegative[idx]
+        }));
+        // Fisher-Yates shuffle so OP1, OP2, and OP3 vary dynamically
+        for (let i = indexedOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+        }
+        return {
+          code: q.code,
+          caseTag: q.caseTag,
+          telemetryClue: q.telemetryClue,
+          enunciado: q.enunciado,
+          shuffledOptions: indexedOptions
+        };
+      });
+      navigateTo('evaluacion');
+      renderEvaluationQuestion();
+    }
+
+    function renderEvaluationQuestion() {
+      const q = evalOrder[evalCurrentIdx];
+      document.getElementById('eval-question-card').classList.remove('hidden');
+      document.getElementById('eval-feedback-card').classList.add('hidden');
+      document.getElementById('eval-summary-card').classList.add('hidden');
+
+      document.getElementById('eval-q-badge').textContent = q.code;
+      document.getElementById('eval-case-tag').textContent = q.caseTag;
+      document.getElementById('eval-telemetry-clue').textContent = q.telemetryClue;
+      document.getElementById('eval-enunciado').textContent = q.enunciado;
+      document.getElementById('eval-op1-text').textContent = q.shuffledOptions[0].text;
+      document.getElementById('eval-op2-text').textContent = q.shuffledOptions[1].text;
+      document.getElementById('eval-op3-text').textContent = q.shuffledOptions[2].text;
+
+      // Progress dots
+      const dotsContainer = document.getElementById('eval-progress-dots');
+      dotsContainer.innerHTML = evalOrder.map((_, i) => {
+        const active = i === evalCurrentIdx;
+        const done = i < evalCurrentIdx;
+        return `<span class="w-3 h-3 rounded-full ${active ? 'bg-yellow-300 ring-2 ring-yellow-300/50' : done ? 'bg-cyan-400' : 'bg-slate-700'}"></span>`;
+      }).join('');
+    }
+
+    function submitAnswer(selectedOptionIndex) {
+      const q = evalOrder[evalCurrentIdx];
+      const chosen = q.shuffledOptions[selectedOptionIndex];
+      const isCorrect = chosen.isCorrect;
+
+      document.getElementById('eval-question-card').classList.add('hidden');
+      const fbCard = document.getElementById('eval-feedback-card');
+      fbCard.classList.remove('hidden');
+
+      const badge = document.getElementById('feedback-header-badge');
+      const faceContainer = document.getElementById('feedback-face-container');
+      const title = document.getElementById('feedback-title');
+      const explanation = document.getElementById('feedback-explanation');
+
+      if (isCorrect) {
+        evalScore++;
+        playTone('success');
+        fbCard.style.borderColor = '#00e5ff';
+        badge.textContent = 'R Positiva';
+        badge.className = 'px-5 py-1.5 rounded-full font-display font-extrabold text-sm tracking-widest uppercase bg-cyan-950 border border-cyan-400 text-cyan-300';
+        title.textContent = '¡Excelente!';
+        title.className = 'font-display font-black text-2xl sm:text-3xl text-cyan-300';
+        explanation.textContent = chosen.why;
+
+        // Expressive Happy Face SVG
+        faceContainer.innerHTML = `
+          <svg class="w-full h-full text-cyan-300 drop-shadow-[0_0_16px_rgba(0,229,255,0.65)]" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5">
+            <circle cx="50" cy="50" r="42" fill="rgba(0,229,255,0.12)" />
+            <circle cx="35" cy="40" r="5" fill="currentColor" />
+            <circle cx="65" cy="40" r="5" fill="currentColor" />
+            <path d="M30 58 C36 74, 64 74, 70 58" stroke-linecap="round" />
+          </svg>
+        `;
+      } else {
+        playTone('error');
+        fbCard.style.borderColor = '#fde047';
+        badge.textContent = 'R Negativa';
+        badge.className = 'px-5 py-1.5 rounded-full font-display font-extrabold text-sm tracking-widest uppercase bg-yellow-950 border border-yellow-300 text-yellow-300';
+        title.textContent = '¡Sigue intentando!';
+        title.className = 'font-display font-black text-2xl sm:text-3xl text-yellow-300';
+        explanation.textContent = chosen.why;
+
+        // Expressive Sad Face SVG
+        faceContainer.innerHTML = `
+          <svg class="w-full h-full text-yellow-300 drop-shadow-[0_0_16px_rgba(253,224,71,0.6)]" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5">
+            <circle cx="50" cy="50" r="42" fill="rgba(253,224,71,0.12)" />
+            <circle cx="35" cy="40" r="5" fill="currentColor" />
+            <circle cx="65" cy="40" r="5" fill="currentColor" />
+            <path d="M32 70 C40 56, 60 56, 68 70" stroke-linecap="round" />
+          </svg>
+        `;
+      }
+    }
+
+    function nextEvaluationStep() {
+      playTone('click');
+      if (evalCurrentIdx < evalOrder.length - 1) {
+        evalCurrentIdx++;
+        renderEvaluationQuestion();
+      } else {
+        // Finished P5 -> Return directly to Menu Principal showing obtained score
+        const scoreBanner = document.getElementById('eval-last-score-banner');
+        if (scoreBanner) {
+          scoreBanner.textContent = `Evaluación completada • Puntuación obtenida: ${evalScore} / ${evalOrder.length}`;
+          scoreBanner.classList.remove('hidden');
+        }
+        playTone('success');
+        navigateTo('menu');
+      }
+    }
+
+    /* ============================================================================
+       7. ACTIVIDAD (LABORATORIO DE CALIBRACIÓN 3D Y VISTA EXPLOSIVA)
+    ============================================================================ */
+    const LAB_SUBSYSTEMS = {
+      sensores: {
+        key: 'sensores',
+        name: '2. Los Sensores (Ojos / Radar)',
+        instruction: 'Ajusta el alcance del radar ultrasónico entre 70 cm y 95 cm para que el robot detecte obstáculos sin falsas alarmas.',
+        sliderLabel: 'Alcance del Sensor Ultrasónico:',
+        unit: ' cm',
+        minLabel: '10 cm',
+        maxLabel: '100 cm',
+        targetMin: 70,
+        targetMax: 95,
+        targetHint: 'Zona óptima: 70 - 95 cm',
+        initialVal: 25
+      },
+      controlador: {
+        key: 'controlador',
+        name: '1. El Controlador (Cerebro CPU)',
+        instruction: 'Sincroniza la frecuencia del microprocesador central entre 65 MHz y 90 MHz para procesar las señales de los sensores.',
+        sliderLabel: 'Frecuencia del Procesador:',
+        unit: ' MHz',
+        minLabel: '10 MHz',
+        maxLabel: '100 MHz',
+        targetMin: 65,
+        targetMax: 90,
+        targetHint: 'Zona óptima: 65 - 90 MHz',
+        initialVal: 30
+      },
+      actuadores: {
+        key: 'actuadores',
+        name: '3. Los Actuadores (Motores)',
+        instruction: 'Regula la velocidad de rotación de los motores articulados entre 75 RPM y 100 RPM para mover los brazos con precisión.',
+        sliderLabel: 'Potencia de los Motores:',
+        unit: ' RPM',
+        minLabel: '0 RPM',
+        maxLabel: '100 RPM',
+        targetMin: 75,
+        targetMax: 100,
+        targetHint: 'Zona óptima: 75 - 100 RPM',
+        initialVal: 20
+      },
+      energia: {
+        key: 'energia',
+        name: '4. Fuente de Energía (Batería)',
+        instruction: 'Estabiliza el flujo de carga eléctrica de las celdas de litio entre 80% y 100% para alimentar todo el robot.',
+        sliderLabel: 'Nivel de Carga Eléctrica:',
+        unit: '%',
+        minLabel: '15%',
+        maxLabel: '100%',
+        targetMin: 80,
+        targetMax: 100,
+        targetHint: 'Zona óptima: 80% - 100%',
+        initialVal: 35
+      },
+      chasis: {
+        key: 'chasis',
+        name: '5. Estructura / Chasis (Blindaje)',
+        instruction: 'Ajusta la rigidez del armazón protector y las ruedas entre 60% y 85% para dar estabilidad mecánica al robot.',
+        sliderLabel: 'Tensión Estructural del Chasis:',
+        unit: '%',
+        minLabel: '10%',
+        maxLabel: '100%',
+        targetMin: 60,
+        targetMax: 85,
+        targetHint: 'Zona óptima: 60% - 85%',
+        initialVal: 20
+      }
+    };
+
+    const SUBSYSTEM_ORDER = ['sensores', 'controlador', 'actuadores', 'energia', 'chasis'];
+    let actSelectedKey = null;
+    let actCalibratedState = {
+      sensores: false,
+      controlador: false,
+      actuadores: false,
+      energia: false,
+      chasis: false
+    };
+    let actSliderValue = 50;
+    let actExplodedMode = false;
+    const raycaster = new THREE.Raycaster();
+    const pointerVec = new THREE.Vector2();
+
+    function ensureActivitySceneInitialized() {
+      const container = document.getElementById('canvas-actividad-container');
+      if (!container) return;
+
+      if (!scenes.actividad) {
+        scenes.actividad = setupThreeViewport('canvas-actividad-container', { cameraZ: 5.5, autoRotate: false });
+        if (scenes.actividad) {
+          scenes.actividad.model = buildFullEducationalRobot();
+          scenes.actividad.scene.add(scenes.actividad.model);
+          setupActivityRaycasting();
+        }
+      }
+      resizeThreeViewport(scenes.actividad);
+    }
+
+    function startActivity() {
+      playTone('click');
+      navigateTo('actividad');
+
+      requestAnimationFrame(() => {
+        ensureActivitySceneInitialized();
+        resetActivityLab();
+      });
+    }
+
+    function resetActivityLab() {
+      actSelectedKey = null;
+      actExplodedMode = false;
+      SUBSYSTEM_ORDER.forEach(k => { actCalibratedState[k] = false; });
+
+      const expBtn = document.getElementById('btn-act-exploded');
+      if (expBtn) expBtn.classList.remove('tab-active');
+
+      document.getElementById('act-complete-banner').classList.add('hidden');
+      document.getElementById('act-interactive-control').classList.add('hidden');
+      document.getElementById('act-selected-title').textContent = 'Haz clic en cualquier pieza del Robot 3D';
+      document.getElementById('act-selected-badge').textContent = 'En espera';
+      document.getElementById('act-selected-badge').className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-600';
+      document.getElementById('act-selected-instruction').innerHTML =
+        'Gira el robot con el ratón o dedo, activa la <strong class="text-cyan-300">Vista Explosiva / Rayos X</strong> para ver sus piezas internas y haz clic sobre cualquiera de los 5 sistemas para calibrarlo.';
+
+      updateActivityProgressUI();
+      updateActivity3DHighlights();
+    }
+
+    function toggleActivityExplodedView() {
+      playTone('servo');
+      actExplodedMode = !actExplodedMode;
+      const btn = document.getElementById('btn-act-exploded');
+      if (btn) btn.classList.toggle('tab-active', actExplodedMode);
+    }
+
+    function updateActivityProgressUI() {
+      const doneCount = SUBSYSTEM_ORDER.filter(k => actCalibratedState[k]).length;
+      const pct = Math.round((doneCount / SUBSYSTEM_ORDER.length) * 100);
+
+      document.getElementById('act-power-bar').style.width = pct + '%';
+      document.getElementById('act-power-pct').textContent = pct + '%';
+      document.getElementById('act-calibrated-count').textContent = `${doneCount} / 5 Calibrados`;
+
+      // Render 5 subsystem status rows
+      const listEl = document.getElementById('act-subsystems-list');
+      listEl.innerHTML = SUBSYSTEM_ORDER.map(k => {
+        const sub = LAB_SUBSYSTEMS[k];
+        const done = actCalibratedState[k];
+        const isSel = actSelectedKey === k;
+        return `
+          <button onclick="selectActivitySubsystem('${k}')" class="w-full px-3.5 py-2 rounded-xl border text-left flex items-center justify-between gap-2 transition cursor-pointer ${
+            isSel
+              ? 'bg-cyan-950/90 border-yellow-300 shadow-[0_0_12px_rgba(253,224,71,0.3)]'
+              : done
+              ? 'bg-[#091b29] border-cyan-400/70'
+              : 'bg-[#081220] border-slate-700 hover:border-cyan-400/60'
+          }">
+            <span class="text-xs sm:text-sm font-bold ${done ? 'text-cyan-300' : 'text-slate-200'}">${sub.name}</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${
+              done
+                ? 'bg-cyan-950 text-yellow-300 border border-yellow-300/60'
+                : 'bg-slate-900 text-slate-400 border border-slate-700'
+            }">
+              ${done ? '✓ Activo' : 'Calibrar'}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      if (doneCount === SUBSYSTEM_ORDER.length) {
+        document.getElementById('act-complete-banner').classList.remove('hidden');
+      }
+    }
+
+    function selectActivitySubsystem(key) {
+      const sub = LAB_SUBSYSTEMS[key];
+      if (!sub) return;
+      playTone('click');
+      actSelectedKey = key;
+
+      // Auto-enable exploded view when inspecting internal parts (controlador / energia)
+      if ((key === 'controlador' || key === 'energia') && !actExplodedMode) {
+        actExplodedMode = true;
+        const btn = document.getElementById('btn-act-exploded');
+        if (btn) btn.classList.add('tab-active');
+      }
+
+      const alreadyDone = actCalibratedState[key];
+      document.getElementById('act-selected-title').textContent = sub.name;
+      document.getElementById('act-selected-instruction').textContent = sub.instruction;
+
+      const badge = document.getElementById('act-selected-badge');
+      if (alreadyDone) {
+        badge.textContent = '✓ Calibrado';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-950 text-yellow-300 border border-yellow-300';
+      } else {
+        badge.textContent = 'Requiere ajuste';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-yellow-950 text-yellow-300 border border-yellow-400';
+      }
+
+      const ctrlBox = document.getElementById('act-interactive-control');
+      ctrlBox.classList.remove('hidden');
+
+      actSliderValue = alreadyDone ? Math.round((sub.targetMin + sub.targetMax) / 2) : sub.initialVal;
+      const sliderEl = document.getElementById('act-calibration-slider');
+      sliderEl.value = actSliderValue;
+
+      document.getElementById('act-slider-label').textContent = sub.sliderLabel;
+      document.getElementById('act-slider-value').textContent = actSliderValue + sub.unit;
+      document.getElementById('act-slider-min').textContent = sub.minLabel;
+      document.getElementById('act-slider-max').textContent = sub.maxLabel;
+      document.getElementById('act-slider-target-hint').textContent = sub.targetHint;
+
+      updateActivityProgressUI();
+      updateActivity3DHighlights();
+    }
+
+    function onCalibrationSliderInput(val) {
+      if (!actSelectedKey) return;
+      const sub = LAB_SUBSYSTEMS[actSelectedKey];
+      actSliderValue = Number(val);
+      const inZone = actSliderValue >= sub.targetMin && actSliderValue <= sub.targetMax;
+      const valEl = document.getElementById('act-slider-value');
+      valEl.textContent = actSliderValue + sub.unit + (inZone ? ' (Óptimo)' : '');
+      valEl.className = inZone
+        ? 'font-display font-bold text-cyan-300'
+        : 'font-display font-bold text-yellow-300';
+    }
+
+    function confirmSubsystemCalibration() {
+      if (!actSelectedKey) return;
+      const sub = LAB_SUBSYSTEMS[actSelectedKey];
+      const inZone = actSliderValue >= sub.targetMin && actSliderValue <= sub.targetMax;
+
+      if (inZone) {
+        actCalibratedState[actSelectedKey] = true;
+        playTone('success');
+        const badge = document.getElementById('act-selected-badge');
+        badge.textContent = '✓ Calibrado';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-950 text-yellow-300 border border-yellow-300';
+        document.getElementById('act-selected-instruction').textContent =
+          `¡Sistema "${sub.name}" encendido con éxito! Haz clic en otra pieza del robot 3D para continuar.`;
+        updateActivityProgressUI();
+        updateActivity3DHighlights();
+      } else {
+        playTone('error');
+        document.getElementById('act-selected-instruction').textContent =
+          `Valor fuera de rango (${actSliderValue}${sub.unit}). Desliza el control hasta ubicarlo dentro de la ${sub.targetHint}.`;
+      }
+    }
+
+    function updateActivity3DHighlights() {
+      const vp = scenes.actividad;
+      if (!vp || !vp.model) return;
+
+      vp.model.traverse(child => {
+        if (child.isMesh && child.userData.partKey) {
+          if (!child.userData.origMat) {
+            child.userData.origMat = child.material;
+          }
+          const key = child.userData.partKey;
+          const isSelected = key === actSelectedKey;
+          const isCalibrated = actCalibratedState[key];
+
+          child.material = child.userData.origMat.clone();
+          if (isSelected) {
+            if (child.material.emissive) {
+              child.material.emissive.setHex(0xfde047);
+              child.material.emissiveIntensity = 0.65;
+            }
+          } else if (isCalibrated) {
+            if (child.material.emissive) {
+              child.material.emissive.setHex(0x00e5ff);
+              child.material.emissiveIntensity = 0.45;
+            }
+          } else if (actSelectedKey) {
+            child.material.transparent = true;
+            child.material.opacity = 0.35;
+          }
+        }
+      });
+    }
+
+    function findPartKeyFromObject(obj) {
+      let current = obj;
+      while (current) {
+        if (current.userData && current.userData.partKey) {
+          return current.userData.partKey;
+        }
+        if (current.name && ['controlador', 'sensores', 'actuadores', 'energia', 'chasis'].includes(current.name)) {
+          return current.name;
+        }
+        current = current.parent;
+      }
+      return null;
+    }
+
+    function setupActivityRaycasting() {
+      const vp = scenes.actividad;
+      if (!vp || !vp.renderer || !vp.renderer.domElement) return;
+
+      let downX = 0;
+      let downY = 0;
+
+      const getIntersectedPart = (clientX, clientY) => {
+        if (!vp.model) return null;
+        const rect = vp.renderer.domElement.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return null;
+
+        pointerVec.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointerVec.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointerVec, vp.camera);
+
+        const intersects = raycaster.intersectObjects(vp.model.children, true);
+        for (let i = 0; i < intersects.length; i++) {
+          const key = findPartKeyFromObject(intersects[i].object);
+          if (key) return key;
+        }
+        return null;
+      };
+
+      vp.renderer.domElement.addEventListener('pointerdown', e => {
+        downX = e.clientX;
+        downY = e.clientY;
+      });
+
+      vp.renderer.domElement.addEventListener('pointerup', e => {
+        if (Math.hypot(e.clientX - downX, e.clientY - downY) < 6) {
+          const hitKey = getIntersectedPart(e.clientX, e.clientY);
+          if (hitKey) selectActivitySubsystem(hitKey);
+        }
+      });
+
+      vp.renderer.domElement.addEventListener('pointermove', e => {
+        const hitKey = getIntersectedPart(e.clientX, e.clientY);
+        const label = document.getElementById('act-hover-label');
+        if (!label) return;
+
+        const namesMap = {
+          controlador: 'Controlador (Cerebro)',
+          sensores: 'Sensores (Ojos / Radar)',
+          actuadores: 'Actuadores (Motores)',
+          energia: 'Fuente de Energía (Batería)',
+          chasis: 'Estructura / Chasis'
+        };
+        if (hitKey) {
+          label.textContent = 'Clic para calibrar: ' + namesMap[hitKey];
+          label.classList.remove('hidden');
+        } else {
+          label.classList.add('hidden');
+        }
+      });
+    }
+
+    /* ============================================================================
+       8. ANIMATION LOOP (PORTADA, CONTENIDO Y ACTIVIDAD)
+    ============================================================================ */
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      // 1. Animate Portada 3D Robot (including subtle eye & antenna pulse)
+      if (scenes.portada && !document.getElementById('screen-portada').classList.contains('hidden')) {
+        const vp = scenes.portada;
+        if (!vp.isDragging) {
+          vp.rotY += dt * 0.45;
+        }
+        if (vp.model) {
+          vp.model.rotation.y = vp.rotY;
+          vp.model.rotation.x = vp.rotX;
+          vp.model.position.y = Math.sin(elapsed * 2) * 0.06;
+
+          const p0 = vp.model.getObjectByName('robotEyePupil_0');
+          const p1 = vp.model.getObjectByName('robotEyePupil_1');
+          const eyeScale = 0.92 + Math.sin(elapsed * 4) * 0.1;
+          if (p0) p0.scale.setScalar(eyeScale);
+          if (p1) p1.scale.setScalar(eyeScale);
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+
+      // 2. Animate Contenido 3D Model & Interactive Part Demos
+      if (scenes.contenido && !document.getElementById('screen-contenido').classList.contains('hidden')) {
+        const vp = scenes.contenido;
+        if (vp.model) {
+          vp.model.rotation.y = vp.rotY;
+          vp.model.rotation.x = vp.rotX;
+
+          if (vp.demoActive) {
+            vp.demoTimer -= dt;
+            if (vp.demoTimer <= 0) {
+              vp.demoActive = false;
+              document.getElementById('demo-status-text').textContent = 'Demostración finalizada • Pulsa "Activar Demo" para repetir';
+            }
+          }
+
+          if (content3DMode === 'isolated') {
+            if (currentPartIdx === 0) {
+              const core = vp.model.getObjectByName('ctrlCore');
+              if (core) {
+                const speed = vp.demoActive ? 10 : 2.5;
+                core.scale.setScalar(1 + Math.sin(elapsed * speed) * (vp.demoActive ? 0.16 : 0.05));
+              }
+              for (let i = 0; i < 4; i++) {
+                const led = vp.model.getObjectByName('ctrlLed_' + i);
+                if (led) {
+                  led.visible = !vp.demoActive || Math.floor(elapsed * 12 + i) % 2 === 0;
+                }
+              }
+            } else if (currentPartIdx === 1) {
+              for (let w = 0; w < 3; w++) {
+                const ring = vp.model.getObjectByName('isoWave_' + w);
+                if (ring) {
+                  const speed = vp.demoActive ? 2.4 : 0.7;
+                  const progress = ((elapsed * speed) + w * 0.33) % 1;
+                  ring.position.x = 0.22 + progress * 1.35;
+                  ring.scale.setScalar(0.65 + progress * 0.85);
+                  ring.material.opacity = (1 - progress) * 0.9;
+                }
+              }
+            } else if (currentPartIdx === 2) {
+              const spinSpeed = vp.demoActive ? 8.5 : 1.8;
+              const rotor = vp.model.getObjectByName('motorRotorCoils');
+              const g1 = vp.model.getObjectByName('isoGear1');
+              const g2 = vp.model.getObjectByName('isoGear2');
+              const prop = vp.model.getObjectByName('isoPropeller');
+              const arrows = vp.model.getObjectByName('motorRotationArrows');
+              const pulse = vp.model.getObjectByName('motorEnergyPulse');
+
+              if (rotor) rotor.rotation.x += dt * spinSpeed;
+              if (g1) g1.rotation.x += dt * spinSpeed;
+              if (g2) g2.rotation.x -= dt * spinSpeed * 1.35;
+              if (prop) prop.rotation.x += dt * spinSpeed;
+              if (arrows) arrows.rotation.x += dt * (spinSpeed * 0.5);
+              if (pulse) {
+                if (vp.demoActive) {
+                  const p = (elapsed * 3) % 1;
+                  pulse.scale.setScalar(0.85 + p * 0.75);
+                  pulse.material.opacity = (1 - p) * 0.85;
+                } else {
+                  pulse.material.opacity = 0;
+                }
+              }
+            } else if (currentPartIdx === 3) {
+              for (let b = 0; b < 4; b++) {
+                const bar = vp.model.getObjectByName('batteryCell_' + b);
+                if (bar) {
+                  const s = vp.demoActive ? 0.5 + 0.5 * Math.abs(Math.sin(elapsed * 6 - b * 0.6)) : 1.0;
+                  bar.scale.x = Math.max(0.15, s);
+                }
+              }
+            } else if (currentPartIdx === 4) {
+              for (let w = 0; w < 4; w++) {
+                const wh = vp.model.getObjectByName('isoWheel_' + w);
+                if (wh) wh.rotation.x += dt * (vp.demoActive ? 6.5 : 1.2);
+              }
+            }
+          } else {
+            // Ubicación en Robot mode animations
+            if (vp.demoActive) {
+              if (currentPartIdx === 1) {
+                const scanRing = vp.model.getObjectByName('robotHeadScanRing');
+                if (scanRing) {
+                  const wave = (elapsed * 2.5) % 1;
+                  scanRing.position.z = 0.65 + wave * 0.85;
+                  scanRing.scale.setScalar(0.8 + wave * 0.8);
+                  scanRing.material.opacity = (1 - wave) * 0.85;
+                }
+              } else if (currentPartIdx === 2) {
+                const lArm = vp.model.getObjectByName('leftArm');
+                const rArm = vp.model.getObjectByName('rightArm');
+                if (lArm) lArm.rotation.x = Math.sin(elapsed * 7) * 0.55;
+                if (rArm) rArm.rotation.x = -Math.sin(elapsed * 7) * 0.55;
+              } else if (currentPartIdx === 4) {
+                vp.model.position.y = Math.sin(elapsed * 5) * 0.08;
+              }
+            }
+          }
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+
+      // 3. Animate Actividad 3D Lab (Exploded X-Ray separation & live calibrated systems)
+      if (scenes.actividad && !document.getElementById('screen-actividad').classList.contains('hidden')) {
+        const vp = scenes.actividad;
+        if (vp.model) {
+          const headGrp = vp.model.getObjectByName('sensores');
+          const ctrlGrp = vp.model.getObjectByName('controlador');
+          const enerGrp = vp.model.getObjectByName('energia');
+          const actGrp = vp.model.getObjectByName('actuadores');
+
+          const targetHeadY = actExplodedMode ? 1.88 : 1.38;
+          const targetCtrlZ = actExplodedMode ? 1.05 : 0.25;
+          const targetEnerZ = actExplodedMode ? 1.05 : 0.2;
+          const targetActScale = actExplodedMode ? 1.12 : 1.0;
+
+          if (headGrp) headGrp.position.y += (targetHeadY - headGrp.position.y) * 0.12;
+          if (ctrlGrp) ctrlGrp.position.z += (targetCtrlZ - ctrlGrp.position.z) * 0.12;
+          if (enerGrp) enerGrp.position.z += (targetEnerZ - enerGrp.position.z) * 0.12;
+          if (actGrp) actGrp.scale.x += (targetActScale - actGrp.scale.x) * 0.12;
+
+          if (actCalibratedState.sensores) {
+            const scanRing = vp.model.getObjectByName('robotHeadScanRing');
+            if (scanRing) {
+              const wave = (elapsed * 2.0) % 1;
+              scanRing.position.z = 0.65 + wave * 0.85;
+              scanRing.scale.setScalar(0.8 + wave * 0.8);
+              scanRing.material.opacity = (1 - wave) * 0.85;
+            }
+          }
+
+          if (actCalibratedState.actuadores) {
+            const lArm = vp.model.getObjectByName('leftArm');
+            const rArm = vp.model.getObjectByName('rightArm');
+            if (lArm) lArm.rotation.x = Math.sin(elapsed * 5) * 0.45;
+            if (rArm) rArm.rotation.x = -Math.sin(elapsed * 5) * 0.45;
+          }
+
+          if (actCalibratedState.chasis) {
+            vp.model.position.y = Math.sin(elapsed * 3.5) * 0.05;
+          }
+        }
+        if (vp.controls) vp.controls.update();
+        vp.renderer.render(vp.scene, vp.camera);
+      }
+    }
+
+    // Initialize Portada 3D on window load (Contenido & Actividad initialize safely when opened)
+    window.onload = function () {
+      scenes.portada = setupThreeViewport('canvas-portada-container', { cameraZ: 5.2, autoRotate: true });
+      if (scenes.portada) {
+        scenes.portada.model = buildFullEducationalRobot();
+        scenes.portada.scene.add(scenes.portada.model);
+      }
+      animate();
+    };
+  </script>
+</body>
+</html>
